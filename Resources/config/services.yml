@@ -1,0 +1,6 @@
+parameters:
+
+services:
+    google_drive_rest_api:
+        class: Keboola\Google\DriveBundle\GoogleDrive\RestApi
+        arguments: [@google_rest_api]
