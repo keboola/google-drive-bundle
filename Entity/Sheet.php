@@ -101,7 +101,7 @@ class Sheet
 
 	public function getConfig()
 	{
-		return json_decode($this->config, true);
+		return (is_array($this->config))?$this->config:json_decode($this->config, true);
 	}
 
 	public function fromArray(array $data)
@@ -121,7 +121,7 @@ class Sheet
 			'title'     => $this->title,
 			'sheetId'   => $this->sheetId,
 			'sheetTitle'    => $this->sheetTitle,
-			'config'    => $this->config
+			'config'    => json_encode($this->getConfig())
 		);
 	}
 }

@@ -10,11 +10,15 @@ namespace Keboola\Google\DriveBundle;
 
 use Guzzle\Http\Message\Response;
 use Keboola\Google\DriveBundle\Entity\Account;
+use Keboola\Google\DriveBundle\Entity\Sheet;
+use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\Exception\ParameterMissingException;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\Google\DriveBundle\Extractor\Extractor;
 use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
 use Keboola\StorageApi\Client;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Syrup\ComponentBundle\Component\Component;
 
 class GoogleDriveExtractor extends Component
@@ -55,32 +59,62 @@ class GoogleDriveExtractor extends Component
 		);
 	}
 
-	public function getAccount($params)
+	public function getAccount($id)
 	{
-		$this->checkParams(array('accountId'), $params);
-
-		$account = $this->configuration->getAccountBy('accountId', $params['accountId'], true);
-
-		return array(
-			'account' => $account
-		);
+		return $this->configuration->getAccountBy('accountId', $id, true);
 	}
 
-	public function getAccounts($params)
+	public function getAccounts()
+	{
+		return $this->configuration->getAccounts(true);
+	}
+
+	public function getConfigs()
 	{
 		$accounts = $this->configuration->getAccounts(true);
 
-		return array(
-			'accounts'  => $accounts
+		$res = array();
+		foreach ($accounts as $account) {
+			$res[] = array_intersect_key($account, array_fill_keys(array('id', 'name', 'description'), 0));
+		}
+
+		return $res;
+	}
+
+	public function postConfigs($params)
+	{
+		$this->checkParams(
+			array(
+				'name'
+			),
+			$params
 		);
+
+		try {
+			$this->configuration->exists();
+		} catch (ConfigurationException $e) {
+			$this->configuration->create();
+		}
+
+		if (null != $this->configuration->getAccountBy('accountName', $params['name'])) {
+			throw new ConfigurationException('Account already exists');
+		}
+
+		return $this->configuration->addAccount($params);
+	}
+
+	public function deleteConfig($id)
+	{
+		$this->configuration->removeAccount($id);
 	}
 
 	public function postAccount($params)
 	{
 		$this->checkParams(
 			array(
+				'id',
 				'googleId',
-				'name',
+				'googleName',
 				'email',
 				'accessToken',
 				'refreshToken'
@@ -88,40 +122,24 @@ class GoogleDriveExtractor extends Component
 			$params
 		);
 
-		if (!$this->configuration->exists()) {
-			$this->configuration->create();
+		$account = $this->configuration->getAccountBy('accountId', $params['id']);
+		if (null == $account) {
+			throw new ConfigurationException("Account doesn't exist");
 		}
 
-		if (null != $this->configuration->getAccountBy('googleId', $params['googleId'])) {
-			throw new \Exception('Account already exists');
-		}
+		$account->fromArray($params);
+		$account->save();
 
-		$this->configuration->addAccount($params);
+		return $account->toArray();
 	}
 
-	public function deleteAccount($params)
+	public function getFiles($accountId)
 	{
-		$this->checkParams(
-			array(
-				'accountId'
-			),
-			$params
-		);
-
-		$this->configuration->removeAccount($params['accountId']);
-	}
-
-	public function getFiles($params)
-	{
-		$this->checkParams(array(
-			'accountId'
-		), $params);
-
 		/** @var RestApi $googleDriveApi */
 		$googleDriveApi = $this->_container->get('google_drive_rest_api');
 
 		/** @var Account $account */
-		$account = $this->configuration->getAccountBy('accountId', $params['accountId']);
+		$account = $this->configuration->getAccountBy('accountId', $accountId);
 
 		$googleDriveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
 
@@ -133,11 +151,7 @@ class GoogleDriveExtractor extends Component
 			$response = $googleDriveApi->getFilesByOwner($account->getEmail());
 		}
 
-		$responseJson = $response->json();
-
-		return array(
-			'files' => $responseJson['items']
-		);
+		return $response->json();
 	}
 
 	/**
@@ -145,18 +159,15 @@ class GoogleDriveExtractor extends Component
 	 */
 
 	/**
-	 * @param $params
+	 * @param $accountId
+	 * @param $fileId
+	 * @internal param $params
 	 * @return array
 	 */
-	public function getSheets($params)
+	public function getSheets($accountId, $fileId)
 	{
-		$this->checkParams(array(
-			'fileId',
-			'accountId'
-		), $params);
-
 		/** @var Account $account */
-		$account = $this->configuration->getAccountBy('accountId', $params['accountId']);
+		$account = $this->configuration->getAccountBy('accountId', $accountId);
 
 		/** @var RestApi $googleDriveApi */
 		$googleDriveApi = $this->_container->get('google_drive_rest_api');
@@ -165,52 +176,47 @@ class GoogleDriveExtractor extends Component
 
 		/** @var Response $response */
 		$response = null;
-		$response = $googleDriveApi->getWorksheets($params['fileId']);
 
-		return array(
-			'sheets' => $response
-		);
+		return $googleDriveApi->getWorksheets($fileId);
 	}
 
 	/**
+	 * @param $accountId
 	 * @param $params
+	 * @return array
+	 * @throws Exception\ParameterMissingException
 	 */
-	public function postSheets($params)
+	public function postSheets($accountId, $params)
 	{
-		if (isset($params['data'])) {
-			foreach ($params['data'] as $sheet) {
-				$this->checkParams(array(
-					'accountId',
-					'googleId',
-					'title',
-					'sheetId',
-					'sheetTitle'
-				), $sheet);
+		$account = $this->configuration->getAccountBy('accountId', $accountId);
 
-				$this->configuration->addSheet($sheet);
-			}
-		} else {
+		if (!isset($params['data'])) {
+			throw new ParameterMissingException("missing parameter data");
+		}
+
+		foreach ($params['data'] as $sheetData) {
 			$this->checkParams(array(
-				'accountId',
 				'googleId',
 				'title',
 				'sheetId',
 				'sheetTitle'
-			), $params);
+			), $sheetData);
 
-			$this->configuration->addSheet($params);
+			$account->addSheet(new Sheet($sheetData));
 		}
+		$account->save();
+
+		return array('status'   => 'ok');
 	}
 
-	public function deleteSheets($params)
+	/**
+	 * @param $accountId
+	 * @param $fileId
+	 * @param $sheetId
+	 */
+	public function deleteSheet($accountId, $fileId, $sheetId)
 	{
-		$this->checkParams(array(
-			'accountId',
-			'fileId',
-			'sheetId'
-		), $params);
-
-		$this->configuration->removeSheet($params['accountId'], $params['fileId'], $params['sheetId']);
+		$this->configuration->removeSheet($accountId, $fileId, $sheetId);
 	}
 
 }

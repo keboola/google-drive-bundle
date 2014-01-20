@@ -11,6 +11,7 @@ namespace Keboola\Google\DriveBundle\Extractor;
 use Keboola\Google\DriveBundle\Entity\AccountFactory;
 use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Entity\Account;
+use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\StorageApi\Client as StorageApi;
 use Keboola\StorageApi\Config\Reader;
 use Keboola\StorageApi\Table;
@@ -63,16 +64,18 @@ class Configuration
 
 	/**
 	 * Add new account
-	 *
 	 * @param $data
+	 * @return \Keboola\Google\DriveBundle\Entity\Account
 	 */
 	public function addAccount($data)
 	{
-		$accountId = $this->getAccountId($data['googleId']);
-		$account = $this->accountFactory->get($accountId);
+		$data['id'] = $this->getIdFromName($data['name']);
+		$account = $this->accountFactory->get($data['id']);
 		$account->fromArray($data);
 		$account->save(true);
-		$this->accounts[$accountId] = $account;
+		$this->accounts[$data['id']] = $account;
+
+		return $account;
 	}
 
 	/**
@@ -82,7 +85,7 @@ class Configuration
 	 */
 	public function removeAccount($accountId)
 	{
-		$tableId = $this->getSysBucketId() . '.account-' . $accountId;
+		$tableId = $this->getSysBucketId() . '.' . $accountId;
 		if ($this->storageApi->tableExists($tableId)) {
 			$this->storageApi->dropTable($tableId);
 		}
@@ -90,14 +93,14 @@ class Configuration
 		unset($this->accounts[$accountId]);
 	}
 
-	public function addSheet($params)
+	public function addSheet(Account $account, $params)
 	{
-		$accountId = $params['accountId'];
-		unset($params['accountId']);
+//		$accountId = $params['accountId'];
+//		unset($params['accountId']);
 
-		$accounts = $this->getAccounts();
-		/** @var Account $account */
-		$account = $accounts[$accountId];
+//		$accounts = $this->getAccounts();
+//		/** @var Account $account */
+//		$account = $accounts[$accountId];
 
 		$exists = false;
 		foreach ($account->getSheets() as $sheet) {
@@ -110,14 +113,13 @@ class Configuration
 
 		if (!$exists) {
 			$account->addSheet(new Sheet($params));
-			$account->save(true);
 		}
 	}
 
 	public function getSheets($accountId)
 	{
 		$config = $this->getConfig();
-		$account = $config['account-' . $accountId];
+		$account = $config[$accountId];
 		$savedFiles = $account['items'];
 
 		$result = array();
@@ -153,7 +155,7 @@ class Configuration
 		} else if ($this->storageApi->bucketExists('sys.' . $this->componentName)) {
 			return 'sys.' . $this->componentName;
 		}
-		throw new \Exception("SYS bucket don't exists");
+		throw new ConfigurationException("SYS bucket don't exists");
 	}
 
 	public function getInBucketId($accountId)
@@ -168,8 +170,7 @@ class Configuration
 	public function getAccounts($asArray = false)
 	{
 		$accounts = array();
-		foreach ($this->getConfig() as $k => $v) {
-			$accountId = str_replace('account-', '', $k);
+		foreach ($this->getConfig() as $accountId => $v) {
 			$account = $this->accountFactory->get($accountId);
 			$account->fromArray($v);
 			if ($asArray) {
@@ -199,15 +200,11 @@ class Configuration
 		return null;
 	}
 
-	private function getAccountId($googleId)
+	private function getAccountId()
 	{
 		$accountId = 0;
 		/** @var Account $v */
 		foreach($this->getAccounts() as $k => $v) {
-			if ($v->getGoogleId() == $googleId) {
-				$accountId = $k;
-				break;
-			}
 			if ($k >= $accountId) {
 				$accountId = $k+1;
 			}
@@ -216,10 +213,20 @@ class Configuration
 		return $accountId;
 	}
 
+	private function getIdFromName($name)
+	{
+		return strtolower(Table::removeSpecialChars($name));
+	}
+
 	public function removeSheet($accountId, $fileId, $sheetId)
 	{
 		/** @var Account $account */
 		$account = $this->getAccountBy('accountId', $accountId);
+
+		if (null == $account) {
+			throw new ConfigurationException("Account doesn't exist");
+		}
+
 		$account->removeSheet($fileId, $sheetId);
 		$account->save();
 	}

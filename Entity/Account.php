@@ -30,7 +30,15 @@ class Account extends Table
 		$sysBucket = $this->configuration->getSysBucketId();
 		$this->accountId = $accountId;
 
-		parent::__construct($storageApi, $sysBucket . '.account-' . $accountId);
+		parent::__construct($storageApi, $sysBucket . '.' . $accountId);
+	}
+
+	public function getAttribute($key)
+	{
+		if (isset($this->_attributes[$key])) {
+			return $this->_attributes[$key];
+		}
+		return null;
 	}
 
 	public function getAccountId()
@@ -69,6 +77,28 @@ class Account extends Table
 	public function getAccountName()
 	{
 		return $this->getAttribute('name');
+	}
+
+	public function setGoogleName($name)
+	{
+		$this->setAttribute('googleName', $name);
+		return $this;
+	}
+
+	public function getGoogleName()
+	{
+		return $this->getAttribute('googleName');
+	}
+
+	public function setDescription($desc)
+	{
+		$this->setAttribute('description', $desc);
+		return $this;
+	}
+
+	public function getDescription()
+	{
+		return $this->getAttribute('description');
 	}
 
 	public function setAccessToken($accessToken)
@@ -125,42 +155,60 @@ class Account extends Table
 		return $this->sheets;
 	}
 
+	public function getSheet($googleId, $sheetId)
+	{
+		foreach ($this->getSheets() as $sheet) {
+			/** @var Sheet $sheet */
+			if ($sheet->getGoogleId() == $googleId && $sheet->getSheetId() == $sheetId) {
+				return $sheet;
+			}
+		}
+
+		return null;
+	}
+
 	public function addSheet(Sheet $sheet)
 	{
-		$sheet->setAccount($this);
-		$fileIds = array();
-		/** @var Sheet $savedSheet */
-		foreach($this->getData() as $savedSheet) {
-			$gid = $savedSheet['googleId'];
-			if (!isset($fileIds[$gid])) {
-				$fileIds[$gid] = $savedSheet['fileId'];
+		$origSheet = $this->getSheet($sheet->getGoogleId(), $sheet->getSheetId());
+		if (null == $origSheet) {
+			$sheet->setAccount($this);
+			$fileIds = array();
+			/** @var Sheet $savedSheet */
+			foreach($this->getData() as $savedSheet) {
+				$gid = $savedSheet['googleId'];
+				if (!isset($fileIds[$gid])) {
+					$fileIds[$gid] = $savedSheet['fileId'];
+				}
 			}
-		}
 
-		$nextFileId = 0;
-		if (!empty($fileIds)) {
-			if (isset($fileIds[$sheet->getGoogleId()])) {
-				$nextFileId = $fileIds[$sheet->getGoogleId()];
-			} else {
-				$nextFileId = max($fileIds) + 1;
+			$nextFileId = 0;
+			if (!empty($fileIds)) {
+				if (isset($fileIds[$sheet->getGoogleId()])) {
+					$nextFileId = $fileIds[$sheet->getGoogleId()];
+				} else {
+					$nextFileId = max($fileIds) + 1;
+				}
 			}
+
+			$tableName = $nextFileId . '-' . $this->removeSpecialChars($sheet->getSheetTitle());
+
+			$sheet->setFileId($nextFileId);
+
+			if ($sheet->getConfig() == null) {
+				$sheet->setConfig(
+					array(
+						'header'    => array('rows' => 1),
+						'db'        => array('table' => $this->getInBucketId() . '.' . $tableName)
+					)
+				);
+			}
+		} else {
+			// Update Sheet
+
+			$this->removeSheet($origSheet->getFileId(), $origSheet->getSheetId());
+			$origSheet->fromArray($sheet->toArray());
+			$sheet = $origSheet;
 		}
-
-		$tableName = $nextFileId . '-' . $this->removeSpecialChars($sheet->getSheetTitle());
-
-		$sheet->setFileId($nextFileId);
-		$sheet->setConfig(
-			array(
-				'header'    => array('rows' => 1),
-				'db'        => array('table' => $this->getInBucketId() . '.' . $tableName)
-			)
-		);
-
-		// If already saved - reuse config
-//		if (isset($savedFiles[$item['googleId']][$item['sheetId']])) {
-//			$savedFile = $savedFiles[$item['googleId']][$item['sheetId']];
-//			$item['config'] = $savedFile['config'];
-//		}
 
 		$this->sheets[] = $sheet;
 	}

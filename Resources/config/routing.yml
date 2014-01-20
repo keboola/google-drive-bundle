@@ -1,3 +1,63 @@
-keboola_google_drive_homepage:
-    pattern:  /hello/{name}
-    defaults: { _controller: KeboolaGoogleDriveBundle:Default:index }
+#keboola_google_drive_homepage:
+#    pattern:  /hello/{name}
+#    defaults: { _controller: KeboolaGoogleDriveBundle:Default:index }
+#
+
+# OAuth
+keboola_google_drive_oauth:
+    path: /oauth
+    defaults: { _controller: KeboolaGoogleDriveBundle:Oauth:oauth }
+    methods:  [POST]
+
+keboola_google_drive_oauth_callback:
+    path: /oauth-callback
+    defaults: { _controller: KeboolaGoogleDriveBundle:Oauth:oauthCallback }
+
+# Configs
+keboola_google_drive_get_configs:
+    path: /configs
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:getConfigs }
+    methods:  [GET]
+
+keboola_google_drive_post_configs:
+    path: /configs
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:postConfigs }
+    methods:  [POST]
+
+keboola_google_drive_delete_configs:
+    path: /configs/{id}
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:deleteConfig }
+    methods:  [DELETE]
+
+# Accounts
+keboola_google_drive_get_account:
+    path: /account/{id}
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:getAccount }
+    methods:  [GET]
+
+keboola_google_drive_post_account:
+    path: /account/{id}
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:postAccount }
+    methods:  [POST]
+
+# Files
+keboola_google_drive_get_files:
+    path: /files/{accountId}
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:getFiles }
+    methods:  [GET]
+
+# Sheets
+keboola_google_drive_get_sheets:
+    path: /sheets/{accountId}/{fileId}
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:getSheets }
+    methods:  [GET]
+
+keboola_google_drive_post_sheets:
+    path: /sheets/{accountId}
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:postSheets }
+    methods:  [POST]
+
+keboola_google_drive_delete_sheet:
+    path: /sheet/{accountId}/{fileId}/{sheetId}
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:deleteSheet }
+    methods:  [DELETE]

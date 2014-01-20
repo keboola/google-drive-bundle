@@ -21,7 +21,7 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "3.7.*",
-		"syrup/component-bundle": "1.2.*",
+		"syrup/component-bundle": "dev-master",
 		"syrup/development-bundle": "1.1.*"
 	},
 	"scripts": {
@@ -30,7 +30,6 @@
 			"Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap"
 		],
 		"post-update-cmd": [
-			"Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
 			"Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
 			"Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache"
 		]
