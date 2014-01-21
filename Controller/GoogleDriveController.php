@@ -54,13 +54,13 @@ class GoogleDriveController extends ApiController
 		return $this->getJsonResponse($this->getComponent()->getAccounts());
 	}
 
-	public function postAccountAction($id)
-	{
-		$params = $this->getPostJson($this->getRequest());
-		$params['id'] = $id;
-
-		return $this->getJsonResponse($this->getComponent()->postAccount($params));
-	}
+//	public function postAccountAction($id)
+//	{
+//		$params = $this->getPostJson($this->getRequest());
+//		$params['id'] = $id;
+//
+//		return $this->getJsonResponse($this->getComponent()->postAccount($params));
+//	}
 
 
 	/** Files */

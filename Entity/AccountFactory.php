@@ -9,11 +9,13 @@
 namespace Keboola\Google\DriveBundle\Entity;
 
 
+use Keboola\Encryption\EncryptorInterface;
 use Keboola\Google\DriveBundle\Entity\Account;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 
 class AccountFactory
 {
+	/** @var Configuration  */
 	protected $configuration;
 
 	public function __construct(Configuration $configuration)

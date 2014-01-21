@@ -17,8 +17,6 @@ use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\Google\DriveBundle\Extractor\Extractor;
 use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
 use Keboola\StorageApi\Client;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Syrup\ComponentBundle\Component\Component;
 
 class GoogleDriveExtractor extends Component
@@ -26,16 +24,21 @@ class GoogleDriveExtractor extends Component
 	protected $_name = 'googleDrive';
 	protected $_prefix = 'ex';
 
-	/** @var Configuration */
-	protected $configuration;
-
 	/** @var Extractor */
 	protected $extractor;
 
-	public function __construct(Client $storageApi, $log)
+	/** @var Configuration */
+	protected $configuration;
+
+	/**
+	 * @return Configuration
+	 */
+	protected function getConfiguration()
 	{
-		$this->configuration = new Configuration($storageApi, $this->getFullName());
-		parent::__construct($storageApi, $log);
+		if ($this->configuration == null) {
+			$this->configuration = new Configuration($this->_storageApi, $this->getFullName(), $this->_container->get('syrup.encryptor'));
+		}
+		return $this->configuration;
 	}
 
 	protected function checkParams($required, $params)
@@ -47,11 +50,32 @@ class GoogleDriveExtractor extends Component
 		}
 	}
 
+	/**
+	 * @param Entity\Account $account
+	 * @internal param $accessToken
+	 * @internal param $refreshToken
+	 * @return RestApi
+	 */
+	protected function getApi(Account $account)
+	{
+		/** @var RestApi $googleDriveApi */
+		$googleDriveApi = $this->_container->get('google_drive_rest_api');
+		$googleDriveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
+
+		$extractor = new Extractor($googleDriveApi, $this->getConfiguration());
+		$extractor->setCurrAccountId($account->getAccountId());
+
+		$googleDriveApi->getApi()->setRefreshTokenCallback(array($extractor, 'refreshTokenCallback'));
+
+		return $googleDriveApi;
+	}
+
 	public function postRun($params)
 	{
 		/** @var RestApi $googleDriveApi */
 		$googleDriveApi = $this->_container->get('google_drive_rest_api');
-		$this->extractor = new Extractor($googleDriveApi, $this->configuration);
+
+		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration());
 		$status = $this->extractor->run();
 
 		return array(
@@ -61,17 +85,17 @@ class GoogleDriveExtractor extends Component
 
 	public function getAccount($id)
 	{
-		return $this->configuration->getAccountBy('accountId', $id, true);
+		return $this->getConfiguration()->getAccountBy('accountId', $id, true);
 	}
 
 	public function getAccounts()
 	{
-		return $this->configuration->getAccounts(true);
+		return $this->getConfiguration()->getAccounts(true);
 	}
 
 	public function getConfigs()
 	{
-		$accounts = $this->configuration->getAccounts(true);
+		$accounts = $this->getConfiguration()->getAccounts(true);
 
 		$res = array();
 		foreach ($accounts as $account) {
@@ -91,21 +115,22 @@ class GoogleDriveExtractor extends Component
 		);
 
 		try {
-			$this->configuration->exists();
+			$this->getConfiguration()->exists();
 		} catch (ConfigurationException $e) {
-			$this->configuration->create();
+			$this->getConfiguration()->create();
 		}
 
-		if (null != $this->configuration->getAccountBy('accountName', $params['name'])) {
+		if (null != $this->getConfiguration()->getAccountBy('accountName', $params['name'])) {
 			throw new ConfigurationException('Account already exists');
 		}
+		$params['accountName'] = $params['name'];
 
-		return $this->configuration->addAccount($params);
+		return $this->getConfiguration()->addAccount($params);
 	}
 
 	public function deleteConfig($id)
 	{
-		$this->configuration->removeAccount($id);
+		$this->getConfiguration()->removeAccount($id);
 	}
 
 	public function postAccount($params)
@@ -122,12 +147,20 @@ class GoogleDriveExtractor extends Component
 			$params
 		);
 
-		$account = $this->configuration->getAccountBy('accountId', $params['id']);
+		/** @var Account $account */
+		$account = $this->getConfiguration()->getAccountBy('accountId', $params['id']);
 		if (null == $account) {
 			throw new ConfigurationException("Account doesn't exist");
 		}
 
-		$account->fromArray($params);
+		$account
+			->setAccountId($params['id'])
+			->setGoogleId($params['googleId'])
+			->setGoogleName($params['googleName'])
+			->setEmail($params['email'])
+			->setAccessToken($params['accessToken'])
+			->setRefreshToken($params['refreshToken'])
+		;
 		$account->save();
 
 		return $account->toArray();
@@ -135,13 +168,10 @@ class GoogleDriveExtractor extends Component
 
 	public function getFiles($accountId)
 	{
-		/** @var RestApi $googleDriveApi */
-		$googleDriveApi = $this->_container->get('google_drive_rest_api');
-
 		/** @var Account $account */
-		$account = $this->configuration->getAccountBy('accountId', $accountId);
+		$account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
 
-		$googleDriveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
+		$googleDriveApi = $this->getApi($account);
 
 		/** @var Response $response */
 		$response = null;
@@ -167,12 +197,9 @@ class GoogleDriveExtractor extends Component
 	public function getSheets($accountId, $fileId)
 	{
 		/** @var Account $account */
-		$account = $this->configuration->getAccountBy('accountId', $accountId);
+		$account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
 
-		/** @var RestApi $googleDriveApi */
-		$googleDriveApi = $this->_container->get('google_drive_rest_api');
-
-		$googleDriveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
+		$googleDriveApi = $this->getApi($account->getAccessToken(), $account->getRefreshToken());
 
 		/** @var Response $response */
 		$response = null;
@@ -188,7 +215,7 @@ class GoogleDriveExtractor extends Component
 	 */
 	public function postSheets($accountId, $params)
 	{
-		$account = $this->configuration->getAccountBy('accountId', $accountId);
+		$account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
 
 		if (!isset($params['data'])) {
 			throw new ParameterMissingException("missing parameter data");
@@ -216,7 +243,7 @@ class GoogleDriveExtractor extends Component
 	 */
 	public function deleteSheet($accountId, $fileId, $sheetId)
 	{
-		$this->configuration->removeSheet($accountId, $fileId, $sheetId);
+		$this->getConfiguration()->removeSheet($accountId, $fileId, $sheetId);
 	}
 
 }

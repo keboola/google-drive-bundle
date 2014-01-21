@@ -8,6 +8,7 @@
 
 namespace Keboola\Google\DriveBundle\Extractor;
 
+use Keboola\Encryption\EncryptorInterface;
 use Keboola\Google\DriveBundle\Entity\Account;
 use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
@@ -25,6 +26,8 @@ class Extractor
 	/** @var DataManager */
 	protected $dataManager;
 
+	protected $currAccountId;
+
 	public function __construct(RestApi $driveApi, $configuration)
 	{
 		$this->driveApi = $driveApi;
@@ -41,7 +44,10 @@ class Extractor
 		/** @var Account $account */
 		foreach ($accounts as $accountId => $account) {
 
+			$this->currAccountId = $accountId;
+
 			$this->driveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
+			$this->driveApi->getApi()->setRefreshTokenCallback(array($this, 'refreshTokenCallback'));
 
 			/** @var Sheet $sheet */
 			foreach ($account->getSheets() as $sheet) {
@@ -57,6 +63,24 @@ class Extractor
 		}
 
 		return $status;
+	}
+
+	public function setCurrAccountId($id)
+	{
+		$this->currAccountId = $id;
+	}
+
+	public function getCurrAccountId()
+	{
+		return $this->currAccountId;
+	}
+
+	public function refreshTokenCallback($accessToken, $refreshToken)
+	{
+		$account = $this->configuration->getAccountBy('accountId', $this->currAccountId);
+		$account->setAccessToken($accessToken);
+		$account->setRefreshToken($refreshToken);
+		$account->save();
 	}
 
 }

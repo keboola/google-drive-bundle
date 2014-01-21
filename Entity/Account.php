@@ -11,6 +11,7 @@ namespace Keboola\Google\DriveBundle\Entity;
 use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\StorageApi\Table;
+use Syrup\ComponentBundle\Exception\ApplicationException;
 
 class Account extends Table
 {
@@ -39,6 +40,19 @@ class Account extends Table
 			return $this->_attributes[$key];
 		}
 		return null;
+	}
+
+	public function setId($id)
+	{
+		$this->setAccountId($id);
+		return $this;
+	}
+
+	public function setAccountId($id)
+	{
+		$this->setAttribute('id', $id);
+		$this->accountId = $id;
+		return $this;
 	}
 
 	public function getAccountId()
@@ -70,13 +84,13 @@ class Account extends Table
 
 	public function setAccountName($name)
 	{
-		$this->setAttribute('name', $name);
+		$this->setAttribute('accountName', $name);
 		return $this;
 	}
 
 	public function getAccountName()
 	{
-		return $this->getAttribute('name');
+		return $this->getAttribute('accountName');
 	}
 
 	public function setGoogleName($name)
@@ -103,24 +117,39 @@ class Account extends Table
 
 	public function setAccessToken($accessToken)
 	{
-		$this->setAttribute('accessToken', $accessToken);
+		try {
+			$this->setAttribute('accessToken', $this->configuration->getEncryptor()->encrypt($accessToken));
+		} catch (\Exception $e) {
+		}
 		return $this;
 	}
 
 	public function getAccessToken()
 	{
-		return $this->getAttribute('accessToken');
+		try {
+			return $this->configuration->getEncryptor()->decrypt($this->getAttribute('accessToken'));
+		} catch (\Exception $e) {
+			return null;
+		}
+
 	}
 
 	public function setRefreshToken($refreshToken)
 	{
-		$this->setAttribute('refreshToken', $refreshToken);
+		try {
+			$this->setAttribute('refreshToken', $this->configuration->getEncryptor()->encrypt($refreshToken));
+		} catch (\Exception $e) {
+		}
 		return $this;
 	}
 
 	public function getRefreshToken()
 	{
-		return $this->getAttribute('refreshToken');
+		try {
+			return $this->configuration->getEncryptor()->decrypt($this->getAttribute('refreshToken'));
+		} catch (\Exception $e) {
+			return null;
+		}
 	}
 
 	/**
@@ -224,6 +253,10 @@ class Account extends Table
 		unset($array['items']);
 
 		foreach($array as $k => $v) {
+//			$method = 'set' . ucfirst($k);
+//			if (method_exists($this, $method)) {
+//				$this->$method($v);
+//			}
 			$this->setAttribute($k, $v);
 		}
 	}

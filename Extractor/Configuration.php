@@ -8,6 +8,7 @@
 
 namespace Keboola\Google\DriveBundle\Extractor;
 
+use Keboola\Encryption\EncryptorInterface;
 use Keboola\Google\DriveBundle\Entity\AccountFactory;
 use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Entity\Account;
@@ -32,12 +33,27 @@ class Configuration
 	/** @var AccountFactory */
 	protected $accountFactory;
 
-	public function __construct(StorageApi $storageApi, $componentName)
+	/** @var  EncryptorInterface */
+	protected $encryptor;
+
+	public function __construct(StorageApi $storageApi, $componentName, EncryptorInterface $encryptor)
 	{
 		$this->storageApi = $storageApi;
 		$this->componentName = $componentName;
+		$this->encryptor = $encryptor;
+
 		$this->accountFactory = new AccountFactory($this);
 		$this->accounts = $this->getAccounts();
+	}
+
+	public function getEncryptor()
+	{
+		return $this->encryptor;
+	}
+
+	public function setEncryptor($encryptor)
+	{
+		$this->encryptor = $encryptor;
 	}
 
 	public function getStorageApi()
@@ -72,7 +88,7 @@ class Configuration
 		$data['id'] = $this->getIdFromName($data['name']);
 		$account = $this->accountFactory->get($data['id']);
 		$account->fromArray($data);
-		$account->save(true);
+		$account->save();
 		$this->accounts[$data['id']] = $account;
 
 		return $account;

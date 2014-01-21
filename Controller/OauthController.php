@@ -8,6 +8,7 @@
 namespace Keboola\Google\DriveBundle\Controller;
 
 
+use Keboola\Encryption\EncryptorInterface;
 use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\StorageApi\Client as StorageApi;
@@ -20,9 +21,10 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Syrup\ComponentBundle\Controller\BaseController;
 use Syrup\ComponentBundle\Exception\SyrupComponentException;
 
-class OauthController extends Controller
+class OauthController extends BaseController
 {
 	/**
 	 * @var AttributeBag
@@ -109,9 +111,13 @@ class OauthController extends Controller
 
 		try {
 			$storageApi = new StorageApi($token, null, 'ex-googleDrive');
-			$configuration = new Configuration($storageApi, 'ex-googleDrive');
+			/** @var EncryptorInterface $encryptor */
+			$encryptor = $this->get('syrup.encryptor');
+
+			$configuration = new Configuration($storageApi, 'ex-googleDrive', $encryptor);
 
 			$tokens = $googleApi->authorize($code, $this->container->get('router')->generate('keboola_google_drive_oauth_callback', array(), UrlGeneratorInterface::ABSOLUTE_URL));
+
 			$googleApi->setCredentials($tokens['access_token'], $tokens['refresh_token']);
 			$userData = $googleApi->call(RestApi::USER_INFO_URL)->json();
 
@@ -120,13 +126,14 @@ class OauthController extends Controller
 			if (null == $account) {
 				throw new ConfigurationException("Account doesn't exist");
 			}
-			$account->fromArray(array(
-				'googleId'      => $userData['id'],
-				'googleName'    => $userData['name'],
-				'email'         => $userData['email'],
-				'accessToken'   => $tokens['access_token'],
-				'refreshToken'  => $tokens['refresh_token']
-			));
+
+			$account
+				->setGoogleId($userData['id'])
+				->setGoogleName($userData['name'])
+				->setEmail($userData['email'])
+				->setAccessToken($tokens['access_token'])
+				->setRefreshToken($tokens['refresh_token'])
+			;
 			$account->save();
 
 			if ($referrer) {
