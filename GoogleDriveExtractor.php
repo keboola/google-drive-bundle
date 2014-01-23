@@ -21,7 +21,7 @@ use Syrup\ComponentBundle\Component\Component;
 
 class GoogleDriveExtractor extends Component
 {
-	protected $_name = 'googleDrive';
+	protected $_name = 'google-drive';
 	protected $_prefix = 'ex';
 
 	/** @var Extractor */
@@ -62,7 +62,7 @@ class GoogleDriveExtractor extends Component
 		$googleDriveApi = $this->_container->get('google_drive_rest_api');
 		$googleDriveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
 
-		$extractor = new Extractor($googleDriveApi, $this->getConfiguration());
+		$extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->_log, $this->getTemp());
 		$extractor->setCurrAccountId($account->getAccountId());
 
 		$googleDriveApi->getApi()->setRefreshTokenCallback(array($extractor, 'refreshTokenCallback'));
@@ -75,11 +75,11 @@ class GoogleDriveExtractor extends Component
 		/** @var RestApi $googleDriveApi */
 		$googleDriveApi = $this->_container->get('google_drive_rest_api');
 
-		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration());
+		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->_log, $this->getTemp());
 		$status = $this->extractor->run();
 
 		return array(
-			'sheets'    => $status
+			'status'    => $status
 		);
 	}
 
@@ -199,7 +199,7 @@ class GoogleDriveExtractor extends Component
 		/** @var Account $account */
 		$account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
 
-		$googleDriveApi = $this->getApi($account->getAccessToken(), $account->getRefreshToken());
+		$googleDriveApi = $this->getApi($account);
 
 		/** @var Response $response */
 		$response = null;

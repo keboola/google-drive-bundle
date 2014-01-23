@@ -9,6 +9,7 @@ use Keboola\StorageApi\Config\Reader;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Syrup\ComponentBundle\Service\Encryption\EncryptorFactory;
 
 class ExtractorTest extends WebTestCase
 {
@@ -21,6 +22,7 @@ class ExtractorTest extends WebTestCase
 	/** @var Configuration */
 	protected $configuration;
 
+	protected $componentName = 'ex-google-drive';
 
 	protected function setUp()
 	{
@@ -30,8 +32,12 @@ class ExtractorTest extends WebTestCase
 			'HTTP_X-StorageApi-Token' => $container->getParameter('storageApi.test.token')
 		));
 
+		/** @var EncryptorFactory $encryptorFactory */
+		$encryptorFactory = $container->get('syrup.encryptor_factory');
+		$encryptor = $encryptorFactory->get($this->componentName);
+
 		$this->storageApi = new SapiClient($container->getParameter('storageApi.test.token'));
-		$this->configuration = new Configuration($this->storageApi, 'ex-googleDrive');
+		$this->configuration = new Configuration($this->storageApi, $this->componentName, $encryptor);
 
 		// Cleanup
 		$accounts = $this->configuration->getAccounts(true);

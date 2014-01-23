@@ -8,18 +8,25 @@
 
 namespace Keboola\Google\DriveBundle\Extractor;
 
+use Keboola\Csv\CsvFile;
 use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\StorageApi\Table;
+use SplFileInfo;
+use Syrup\ComponentBundle\Filesystem\TempService;
 
 class DataManager
 {
 	/** @var Configuration */
 	protected $configuration;
 
-	public function __construct(Configuration $configuration)
+	/** @var TempService */
+	protected $temp;
+
+	public function __construct(Configuration $configuration, TempService $temp)
 	{
 		$this->configuration = $configuration;
+		$this->temp = $temp;
 	}
 
 	public function save($data, Sheet $sheet)
@@ -39,18 +46,20 @@ class DataManager
 
 	protected function writeRawCsv($data, Sheet $sheet)
 	{
-		$file = ROOT_PATH . "app/tmp/" . str_replace(' ', '-', $sheet->getTitle())
-			. "_" . $sheet->getSheetId() . "_" . date('Y-m-d') . ".csv";
+		$fileName = str_replace(' ', '-', $sheet->getTitle()) . "_" . $sheet->getSheetId() . "_" . date('Y-m-d') . '-' . uniqid() . ".csv";
 
-		$fh = fopen($file, 'w+');
+		/** @var SplFileInfo $fileInfo */
+		$fileInfo = $this->temp->createFile($fileName);
+
+		$fh = fopen($fileInfo->getPathname(), 'w+');
 
 		if (!$fh) {
-			throw new \Exception("Can't write to file " . $file);
+			throw new \Exception("Can't write to file " . $fileInfo->getPathname());
 		}
 		fwrite($fh, utf8_encode($data));
 		fclose($fh);
 
-		return $file;
+		return $fileInfo->getPathname();
 	}
 
 }

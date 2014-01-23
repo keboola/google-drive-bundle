@@ -8,12 +8,11 @@
 
 namespace Keboola\Google\DriveBundle\Extractor;
 
-use Keboola\Encryption\EncryptorInterface;
 use Keboola\Google\DriveBundle\Entity\Account;
 use Keboola\Google\DriveBundle\Entity\Sheet;
-use Keboola\Google\DriveBundle\Extractor\Configuration;
-use Keboola\Google\DriveBundle\Extractor\DataManager;
 use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
+use Monolog\Logger;
+use Syrup\ComponentBundle\Filesystem\TempService;
 
 class Extractor
 {
@@ -28,11 +27,15 @@ class Extractor
 
 	protected $currAccountId;
 
-	public function __construct(RestApi $driveApi, $configuration)
+	/** @var Logger */
+	protected $logger;
+
+	public function __construct(RestApi $driveApi, $configuration, Logger $logger, TempService $temp)
 	{
 		$this->driveApi = $driveApi;
 		$this->configuration = $configuration;
-		$this->dataManager = new DataManager($configuration);
+		$this->logger = $logger;
+		$this->dataManager = new DataManager($configuration, $temp);
 	}
 
 	public function run($options = null)
@@ -58,6 +61,11 @@ class Extractor
 					$this->dataManager->save($data, $sheet);
 				} catch (\Exception $e) {
 					$status[$accountId][$sheet->getTitle()] = array('error' => $e->getMessage());
+
+					$this->logger->warn("Error while importing sheet", array(
+						"accountId" => $accountId,
+						"sheet"     => $sheet->toArray()
+					));
 				}
 			}
 		}

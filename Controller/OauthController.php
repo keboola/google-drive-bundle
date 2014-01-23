@@ -31,6 +31,8 @@ class OauthController extends BaseController
 	 */
 	protected $sessionBag;
 
+	protected $componentName = 'ex-google-drive';
+
 	/**
 	 * Init OAuth session bag
 	 *
@@ -69,7 +71,7 @@ class OauthController extends BaseController
 		$googleApi = $this->getGoogleApi();
 
 		try {
-			$client = new StorageApi($this->getRequest()->request->get('token'), null, 'ex-googleDrive');
+			$client = new StorageApi($this->getRequest()->request->get('token'), null, $this->componentName);
 
 			$url = $googleApi->getAuthorizationUrl(
 				$this->container->get('router')->generate('keboola_google_drive_oauth_callback', array(), UrlGeneratorInterface::ABSOLUTE_URL),
@@ -110,11 +112,12 @@ class OauthController extends BaseController
 		}
 
 		try {
-			$storageApi = new StorageApi($token, null, 'ex-googleDrive');
+			$storageApi = new StorageApi($token, null, $this->componentName);
+
 			/** @var EncryptorInterface $encryptor */
 			$encryptor = $this->get('syrup.encryptor');
 
-			$configuration = new Configuration($storageApi, 'ex-googleDrive', $encryptor);
+			$configuration = new Configuration($storageApi, $this->componentName, $encryptor);
 
 			$tokens = $googleApi->authorize($code, $this->container->get('router')->generate('keboola_google_drive_oauth_callback', array(), UrlGeneratorInterface::ABSOLUTE_URL));
 
