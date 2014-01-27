@@ -10,6 +10,7 @@ namespace Keboola\Google\DriveBundle\Extractor;
 
 use Keboola\Google\DriveBundle\Entity\Account;
 use Keboola\Google\DriveBundle\Entity\Sheet;
+use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
 use Monolog\Logger;
 use Syrup\ComponentBundle\Filesystem\TempService;
@@ -42,6 +43,15 @@ class Extractor
 	{
 		$accounts = $this->configuration->getAccounts();
 
+		if (isset($options['account'])) {
+			if (!isset($account[$options['account']])) {
+				throw new ConfigurationException("Account '" . $options['account'] . "' does not exist.");
+			}
+			$accounts = array(
+				$options['account'] => $account[$options['account']]
+			);
+		}
+
 		$status = array();
 
 		/** @var Account $account */
@@ -58,13 +68,18 @@ class Extractor
 				$status[$accountId][$sheet->getTitle()] = 'ok';
 				try {
 					$data = $this->driveApi->exportSpreadsheet($sheet->getGoogleId(), $sheet->getSheetId());
-					$this->dataManager->save($data, $sheet);
+					if (!empty($data)) {
+						$this->dataManager->save($data, $sheet);
+					} else {
+						$status = "file is empty";
+					}
 				} catch (\Exception $e) {
 					$status[$accountId][$sheet->getTitle()] = array('error' => $e->getMessage());
 
 					$this->logger->warn("Error while importing sheet", array(
-						"accountId" => $accountId,
-						"sheet"     => $sheet->toArray()
+						'exception' => $e,
+						'accountId' => $accountId,
+						'sheet'     => $sheet->toArray()
 					));
 				}
 			}

@@ -62,10 +62,10 @@ class GoogleDriveExtractor extends Component
 		$googleDriveApi = $this->_container->get('google_drive_rest_api');
 		$googleDriveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
 
-		$extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->_log, $this->getTemp());
-		$extractor->setCurrAccountId($account->getAccountId());
+		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->_log, $this->getTemp());
+		$this->extractor->setCurrAccountId($account->getAccountId());
 
-		$googleDriveApi->getApi()->setRefreshTokenCallback(array($extractor, 'refreshTokenCallback'));
+		$googleDriveApi->getApi()->setRefreshTokenCallback(array($this->extractor, 'refreshTokenCallback'));
 
 		return $googleDriveApi;
 	}
@@ -76,7 +76,7 @@ class GoogleDriveExtractor extends Component
 		$googleDriveApi = $this->_container->get('google_drive_rest_api');
 
 		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->_log, $this->getTemp());
-		$status = $this->extractor->run();
+		$status = $this->extractor->run($params);
 
 		return array(
 			'status'    => $status

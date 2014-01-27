@@ -36,12 +36,13 @@ class DataManager
 
 		$dataProcessor = new DataProcessor($tmpFilename, $sheetConfig);
 		$outFilename = $dataProcessor->process();
-		unlink($tmpFilename);
 
 		$this->configuration->initDataBucket($sheet->getAccount()->getAccountId());
 
 		$table = new Table($this->configuration->getStorageApi(), $sheetConfig['db']['table'], $outFilename);
 		$table->save(true);
+
+		unlink($tmpFilename);
 	}
 
 	protected function writeRawCsv($data, Sheet $sheet)
