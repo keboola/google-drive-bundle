@@ -44,14 +44,14 @@ class Extractor
 		$accounts = $this->configuration->getAccounts();
 
 		if (isset($options['account'])) {
-			if (!isset($account[$options['account']])) {
+			if (!isset($accounts[$options['account']])) {
 				throw new ConfigurationException("Account '" . $options['account'] . "' does not exist.");
 			}
 			$accounts = array(
-				$options['account'] => $account[$options['account']]
+				$options['account'] => $accounts[$options['account']]
 			);
 		}
-
+		
 		$status = array();
 
 		/** @var Account $account */
