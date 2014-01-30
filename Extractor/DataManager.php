@@ -57,7 +57,7 @@ class DataManager
 		if (!$fh) {
 			throw new \Exception("Can't write to file " . $fileInfo->getPathname());
 		}
-		fwrite($fh, utf8_encode($data));
+		fwrite($fh, $data);
 		fclose($fh);
 
 		return $fileInfo->getPathname();

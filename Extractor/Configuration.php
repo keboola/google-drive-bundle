@@ -229,7 +229,7 @@ class Configuration
 		return $accountId;
 	}
 
-	private function getIdFromName($name)
+	public function getIdFromName($name)
 	{
 		return strtolower(Table::removeSpecialChars($name));
 	}

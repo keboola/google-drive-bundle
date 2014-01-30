@@ -120,7 +120,7 @@ class GoogleDriveExtractor extends Component
 			$this->getConfiguration()->create();
 		}
 
-		if (null != $this->getConfiguration()->getAccountBy('accountName', $params['name'])) {
+		if (null != $this->getConfiguration()->getAccountBy('accountId', $this->configuration->getIdFromName($params['name']))) {
 			throw new ConfigurationException('Account already exists');
 		}
 		$params['accountName'] = $params['name'];

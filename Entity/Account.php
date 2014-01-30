@@ -253,10 +253,6 @@ class Account extends Table
 		unset($array['items']);
 
 		foreach($array as $k => $v) {
-//			$method = 'set' . ucfirst($k);
-//			if (method_exists($this, $method)) {
-//				$this->$method($v);
-//			}
 			$this->setAttribute($k, $v);
 		}
 	}
