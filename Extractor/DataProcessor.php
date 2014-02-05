@@ -10,6 +10,7 @@ namespace Keboola\Google\DriveBundle\Extractor;
 
 
 use Keboola\Csv\CsvFile;
+use Syrup\ComponentBundle\Utility\Utility;
 
 class DataProcessor
 {
@@ -171,6 +172,8 @@ class DataProcessor
 	protected function sanitize($string)
 	{
 		$string = str_replace('#', 'count', $string);
+		$string = Utility::unaccent($string);
+		$string = preg_replace("/[^A-Za-z0-9_\s]/", '', $string);
 		$string = trim($string);
 		$string = str_replace(' ', '_', $string);
 		$string = lcfirst($string);
