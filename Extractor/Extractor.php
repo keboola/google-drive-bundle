@@ -13,6 +13,7 @@ use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
 use Monolog\Logger;
+use Syrup\ComponentBundle\Exception\UserException;
 use Syrup\ComponentBundle\Filesystem\TempService;
 
 class Extractor
@@ -51,7 +52,7 @@ class Extractor
 				$options['account'] => $accounts[$options['account']]
 			);
 		}
-		
+
 		$status = array();
 
 		/** @var Account $account */
@@ -74,13 +75,12 @@ class Extractor
 						$status = "file is empty";
 					}
 				} catch (\Exception $e) {
-					$status[$accountId][$sheet->getTitle()] = array('error' => $e->getMessage());
-
-					$this->logger->warn("Error while importing sheet", array(
-						'exception' => $e,
+					$userException = new UserException("Error importing sheet '" . $sheet->getGoogleId() . "-".$sheet->getSheetId()."'", $e);
+					$userException->setData(array(
 						'accountId' => $accountId,
 						'sheet'     => $sheet->toArray()
 					));
+					throw $userException;
 				}
 			}
 		}
