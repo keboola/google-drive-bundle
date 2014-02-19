@@ -3,12 +3,14 @@
 namespace Keboola\Google\DriveBundle\Tests;
 
 use Keboola\Google\DriveBundle\Entity\Account;
+use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\StorageApi\Client as SapiClient;
 use Keboola\StorageApi\Config\Reader;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Syrup\ComponentBundle\Service\Encryption\Encryptor;
 use Syrup\ComponentBundle\Service\Encryption\EncryptorFactory;
 
 class ExtractorTest extends WebTestCase
@@ -19,77 +21,162 @@ class ExtractorTest extends WebTestCase
 	/** @var Client */
 	protected static $client;
 
+	/** @var Encryptor */
+	protected $encryptor;
+
 	/** @var Configuration */
 	protected $configuration;
 
 	protected $componentName = 'ex-google-drive';
 
+	protected $accountId = 'test';
+
+	protected $accountName = 'Test';
+
+	protected $googleId = '123456';
+
+	protected $googleName = 'googleTestAccount';
+
+	protected $email = 'test@keboola.com';
+
+	protected $accessToken = 'accessToken';
+
+	protected $refreshToken = 'refreshToken';
+
+	protected $fileGoogleId = '0Asceg4OWLR3ldGY4UU5Vakd2Z0tkN0dTY3ZkTE9PMVE';
+
+	protected $fileTitle = 'Sales rep monthly targets';
+
+	protected $sheetId = 0;
+	protected $sheetTitle = 'Targets Salesreps';
+
 	protected function setUp()
 	{
 		self::$client = static::createClient();
 		$container = self::$client->getContainer();
+
+		$sapiToken = $container->getParameter('storage_api.test.token');
+		$sapiUrl = $container->getParameter('storage_api.test.url');
+
 		self::$client->setServerParameters(array(
-			'HTTP_X-StorageApi-Token' => $container->getParameter('storageApi.test.token')
+			'HTTP_X-StorageApi-Token' => $sapiToken
 		));
+
+		$this->storageApi = new SapiClient($sapiToken, $sapiUrl, $this->componentName);
 
 		/** @var EncryptorFactory $encryptorFactory */
 		$encryptorFactory = $container->get('syrup.encryptor_factory');
-		$encryptor = $encryptorFactory->get($this->componentName);
+		$this->encryptor = $encryptorFactory->get($this->componentName);
 
-		$this->storageApi = new SapiClient($container->getParameter('storageApi.test.token'));
-		$this->configuration = new Configuration($this->storageApi, $this->componentName, $encryptor);
+		$this->configuration = new Configuration($this->storageApi, $this->componentName, $this->encryptor);
+
+		try {
+			$this->configuration->create();
+		} catch (\Exception $e) {
+			// bucket exists
+		}
 
 		// Cleanup
-		$accounts = $this->configuration->getAccounts(true);
-
-		/** @var Account $account */
-		foreach ($accounts as $k => $account) {
-			$this->configuration->removeAccount($k);
-			$tables = $this->storageApi->listTables('in.c-ex-googleDrive-' . $k);
-			foreach ($tables as $table) {
-				$this->storageApi->dropTable($table['id']);
-			}
+		$sysBucketId = $this->configuration->getSysBucketId();
+		$accTables = $this->storageApi->listTables($sysBucketId);
+		foreach ($accTables as $table) {
+			$this->storageApi->dropTable($table['id']);
 		}
 	}
 
-	protected function createTestAccount()
+	protected function createConfig()
 	{
 		$this->configuration->addAccount(array(
-			'googleId'  => '123456',
-			'name'      => 'test',
-			'email'     => 'test@keboola.com',
-			'accessToken'   => 'accessToken',
-			'refreshToken'  => 'refreshToken'
+			'id'            => $this->accountId,
+			'name'          => $this->accountName,
+			'accountName'   => $this->accountName,
+			'description'   => 'Test Account created by PhpUnit test suite'
 		));
 	}
 
-	protected function assertAccount($account)
+	protected function createAccount()
 	{
-		$this->assertArrayHasKey('googleId', $account);
-		$this->assertArrayHasKey('name', $account);
-		$this->assertArrayHasKey('email', $account);
-		$this->assertArrayHasKey('accessToken', $account);
-		$this->assertArrayHasKey('refreshToken', $account);
+		$account = $this->configuration->getAccountBy('accountId', $this->accountId);
+		$account->setAccountName($this->accountName);
+		$account->setGoogleId($this->googleId);
+		$account->setGoogleName($this->googleName);
+		$account->setEmail($this->email);
+		$account->setAccessToken($this->accessToken);
+		$account->setRefreshToken($this->refreshToken);
 
-		$this->assertNotEmpty($account['googleId']);
-		$this->assertNotEmpty($account['name']);
-		$this->assertNotEmpty($account['email']);
-		$this->assertNotEmpty($account['accessToken']);
-		$this->assertNotEmpty($account['refreshToken']);
+		$account->save();
 	}
 
-	protected function createTestProfile()
+	/**
+	 * @param Account $account
+	 */
+	protected function assertAccount(Account $account)
 	{
-		$this->createTestAccount();
+		$this->assertEquals($this->accountId, $account->getAccountId());
+		$this->assertEquals($this->accountName, $account->getAccountName());
+		$this->assertEquals($this->googleId, $account->getGoogleId());
+		$this->assertEquals($this->googleName, $account->getGoogleName());
+		$this->assertEquals($this->email, $account->getEmail());
+		$this->assertEquals($this->accessToken, $account->getAccessToken());
+		$this->assertEquals($this->refreshToken, $account->getRefreshToken());
+	}
 
-		$this->configuration->addProfile(array(
-			array(
-				'profileId'     => '0',
-				'googleId'      => '987654321',
-				'name'          => 'testProfile',
-				'webPropertyId' => 'web-property-id'
-			)
-		), 0);
+	protected function assertSheet(Sheet $sheet)
+	{
+
+	}
+
+	/**
+	 * Config
+	 */
+
+	public function testPostConfig()
+	{
+		self::$client->request(
+			'POST', $this->componentName . '/configs',
+			array(),
+			array(),
+			array(),
+			json_encode(array(
+				'id'            => 'test',
+				'name'          => 'Test',
+				'description'   => 'Test Account created by PhpUnit test suite'
+			))
+		);
+
+		$responseJson = self::$client->getResponse()->getContent();
+		$response = json_decode($responseJson, true);
+
+		$this->assertEquals('test', $response['id']);
+		$this->assertEquals('Test', $response['name']);
+	}
+
+	public function testGetConfig()
+	{
+		$this->createConfig();
+
+		self::$client->request('GET', $this->componentName . '/configs');
+
+		$responseJson = self::$client->getResponse()->getContent();
+		$response = json_decode($responseJson, true);
+
+		$this->assertEquals('test', $response[0]['id']);
+		$this->assertEquals('Test', $response[0]['name']);
+	}
+
+	public function testDeleteConfig()
+	{
+		$this->createConfig();
+
+		self::$client->request('DELETE', $this->componentName . '/configs/test');
+
+		/* @var Response $response */
+		$response = self::$client->getResponse();
+
+		$accounts = $this->configuration->getAccounts(true);
+
+		$this->assertEquals(204, $response->getStatusCode());
+		$this->assertEmpty($accounts);
 	}
 
 	/**
@@ -98,79 +185,128 @@ class ExtractorTest extends WebTestCase
 
 	public function testPostAccount()
 	{
+		$this->createConfig();
+
 		self::$client->request(
-			'POST', '/ex-google-drive/account',
+			'POST', $this->componentName . '/account',
 			array(),
 			array(),
 			array(),
 			json_encode(array(
-				'googleId'  => '123456',
-				'name'      => 'test',
-				'email'     => 'test@keboola.com',
-				'accessToken'   => 'accessToken',
-				'refreshToken'  => 'refreshToken'
+				'id'            => $this->accountId,
+				'googleId'      => $this->googleId,
+				'googleName'    => $this->googleName,
+				'email'         => $this->email,
+				'accessToken'   => $this->accessToken,
+				'refreshToken'  => $this->refreshToken
 			))
 		);
 
-		/* @var Response $responseJson */
 		$responseJson = self::$client->getResponse()->getContent();
 		$response = json_decode($responseJson, true);
 
-		$this->assertEquals("ok", $response['status']);
+		$this->assertEquals('test', $response['id']);
 
-		$accounts = $this->configuration->getAccounts(true);
-		$account = $accounts[0];
+		$accounts = $this->configuration->getAccounts();
+		$account = $accounts['test'];
 
 		$this->assertAccount($account);
 	}
 
 	public function testGetAccount()
 	{
-		$this->createTestAccount();
+		$this->createConfig();
+		$this->createAccount();
 
-		self::$client->request(
-			'GET', '/ex-google-drive/account',
-			array(
-				'accountId' => 0
-			)
-		);
+		self::$client->request('GET', $this->componentName . '/account/' . $this->accountId);
 
-		/* @var Response $responseJson */
 		$responseJson = self::$client->getResponse()->getContent();
 		$response = json_decode($responseJson, true);
 
-		$this->assertEquals("ok", $response['status']);
-		$this->assertArrayHasKey('account', $response);
+		$account = $this->configuration->getAccountBy('accountId', $response['accountId']);
 
-		$account = $response['account'];
 		$this->assertAccount($account);
 	}
 
 	public function testGetAccounts()
 	{
-		$this->createTestAccount();
+		$this->createConfig();
+		$this->createAccount();
 
 		self::$client->request(
-			'GET', '/ex-google-drive/accounts'
+			'GET', $this->componentName . '/accounts'
 		);
 
-		/* @var Response $responseJson */
 		$responseJson = self::$client->getResponse()->getContent();
 		$response = json_decode($responseJson, true);
 
-		$this->assertEquals("ok", $response['status']);
-		$this->assertArrayHasKey('accounts', $response);
-		$this->assertNotEmpty($response['accounts']);
+		$this->assertNotEmpty($response);
+
+		$accountArr = array_shift($response);
+
+		$this->assertAccount($this->configuration->getAccountBy('accountId', $accountArr['accountId']));
 	}
 
-	public function testDeleteAccount()
+	public function testPostSheets()
 	{
+		$this->createConfig();
+		$this->createAccount();
 
+		self::$client->request(
+			'POST', $this->componentName . '/sheets/' . $this->accountId,
+			array(),
+			array(),
+			array(),
+			json_encode(array(
+				'data'  => array(
+					array(
+						'googleId'  => $this->fileGoogleId,
+						'title'     => $this->fileTitle,
+						'sheetId'   => $this->sheetId,
+						'sheetTitle'    => $this->sheetTitle
+					)
+				)
+			))
+		);
+
+		$responseJson = self::$client->getResponse()->getContent();
+		$response = json_decode($responseJson, true);
+
+		$this->assertEquals('ok', $response['status']);
+
+		$account = $this->configuration->getAccountBy('accountId', $this->accountId);
+		$sheets = $account->getSheets();
+
+		$this->assertNotEmpty($sheets);
+
+		$this->assertSheet(array_shift($sheets));
 	}
 
 	/**
-	 * Sheets
+	 * External
 	 */
 
+	public function testExternalLink()
+	{
+		$this->createConfig();
+		$this->createAccount();
 
+		self::$client->followRedirects();
+		self::$client->request('GET', $this->componentName . '/external-link/' . $this->accountId);
+
+		$responseJson = self::$client->getResponse()->getContent();
+		$response = json_decode($responseJson, true);
+
+		$this->assertArrayHasKey('link', $response);
+		$this->assertNotEmpty($response['link']);
+	}
+
+	/**
+	 * Run
+	 */
+
+	public function testRun()
+	{
+		//@TODO
+	}
 }
