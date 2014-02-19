@@ -16,6 +16,23 @@ use Syrup\ComponentBundle\Controller\ApiController;
 
 class GoogleDriveController extends ApiController
 {
+	/** Tokens */
+
+	public function getExternalAuthLinkAction($accountId)
+	{
+		$token = $this->getComponent()->getToken();
+
+		$url = $this->generateUrl('keboola_google_drive_external_auth', array(
+			'token'     => $token['token'],
+			'account'   => $accountId,
+			'referrer'  => $this->generateUrl('keboola_google_drive_external_auth_finish', array(), true)
+		), true);
+
+		return $this->createJsonResponse(array(
+			'link'  => $url
+		));
+	}
+
 	/** Configs */
 
 	public function getConfigsAction()

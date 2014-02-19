@@ -12,10 +12,9 @@ use Keboola\Encryption\EncryptorInterface;
 use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\StorageApi\Client as StorageApi;
-use Keboola\Google\ClientBundle\Client;
 use Keboola\Google\ClientBundle\Google\RestApi;
 use Keboola\Google\DriveBundle\Exception\ParameterMissingException;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Keboola\StorageApi\ClientException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
@@ -59,6 +58,34 @@ class OauthController extends BaseController
 	private function getGoogleApi()
 	{
 		return $this->container->get('google_rest_api');
+	}
+
+	public function externalAuthAction()
+	{
+		$request = $this->getRequest();
+
+		// check token - if expired redirect to error page
+		try {
+			$sapi = new StorageApi($this->getRequest()->request->get('token'), null, $this->componentName);
+		} catch (ClientException $e) {
+
+			if ($e->getCode() == 401) {
+				return $this->render('KeboolaGoogleDriveBundle:Oauth:expired.html.twig');
+			} else {
+				throw $e;
+			}
+		}
+
+		$request->request->set('token', $request->query->get('token'));
+		$request->request->set('account', $request->query->get('account'));
+		$request->request->set('referrer', $request->query->get('referrer'));
+
+		return $this->forward('KeboolaGoogleDriveBundle:Oauth:oauth');
+	}
+
+	public function externalAuthFinishAction()
+	{
+		return $this->render('KeboolaGoogleDriveBundle:Oauth:finish.html.twig');
 	}
 
 	public function oauthAction()

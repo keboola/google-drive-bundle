@@ -36,6 +36,8 @@ class Configuration
 	/** @var  EncryptorInterface */
 	protected $encryptor;
 
+	protected $tokenExpiration = 172800;
+
 	public function __construct(StorageApi $storageApi, $componentName, EncryptorInterface $encryptor)
 	{
 		$this->storageApi = $storageApi;
@@ -247,4 +249,14 @@ class Configuration
 		$account->save();
 	}
 
+	public function createToken()
+	{
+		$permissions = array(
+			$this->getSysBucketId() => 'write'
+		);
+		$tokenId = $this->storageApi->createToken($permissions, 'External Authorization', $this->tokenExpiration);
+		$token = $this->storageApi->getToken($tokenId);
+
+		return $token;
+	}
 }

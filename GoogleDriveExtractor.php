@@ -246,4 +246,9 @@ class GoogleDriveExtractor extends Component
 		$this->getConfiguration()->removeSheet($accountId, $fileId, $sheetId);
 	}
 
+	public function getToken()
+	{
+		return $this->getConfiguration()->createToken();
+	}
+
 }

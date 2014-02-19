@@ -13,6 +13,22 @@ keboola_google_drive_oauth_callback:
     path: /oauth-callback
     defaults: { _controller: KeboolaGoogleDriveBundle:Oauth:oauthCallback }
 
+# External Auth
+keboola_google_drive_get_external_auth_link:
+    path: /external-link/{accountId}/
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:getExternalAuthLink }
+    methods:  [GET]
+
+keboola_google_drive_external_auth:
+    path: /external-auth
+    defaults: { _controller: KeboolaGoogleDriveBundle:Oauth:externalAuth }
+    methods:  [GET]
+
+keboola_google_drive_external_auth_finish:
+    path: /external-finish
+    defaults: { _controller: KeboolaGoogleDriveBundle:Oauth:externalAuthFinish }
+    methods:  [GET]
+
 # Configs
 keboola_google_drive_get_configs:
     path: /configs
