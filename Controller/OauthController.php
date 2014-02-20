@@ -66,7 +66,7 @@ class OauthController extends BaseController
 
 		// check token - if expired redirect to error page
 		try {
-			$sapi = new StorageApi($this->getRequest()->request->get('token'), null, $this->componentName);
+			$sapi = new StorageApi($request->query->get('token'), null, $this->componentName);
 		} catch (ClientException $e) {
 
 			if ($e->getCode() == 401) {
@@ -176,4 +176,4 @@ class OauthController extends BaseController
 		}
 	}
 
-} 
+}
