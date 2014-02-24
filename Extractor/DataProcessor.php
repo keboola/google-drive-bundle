@@ -59,8 +59,10 @@ class DataProcessor
 					if (isset($this->config['transform']['merge'])) {
 						$csvOutHeaderArr = $this->mergeHeader($csvOutHeaderArr);
 					}
+					if (!isset($this->config['header']['sanitize']) || $this->config['header']['sanitize'] != 0) {
+						$csvOutHeaderArr = $this->normalizeCsvHeader($csvOutHeaderArr);
+					}
 
-					$csvOutHeaderArr = $this->normalizeCsvHeader($csvOutHeaderArr);
 					$this->outputCsv->writeRow($csvOutHeaderArr);
 				} else {
 					$csvTransposeHeader = $csvRow;
