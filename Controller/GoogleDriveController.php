@@ -8,24 +8,35 @@
 namespace Keboola\Google\DriveBundle\Controller;
 
 
+use Keboola\Google\DriveBundle\Exception\ParameterMissingException;
 use Keboola\Google\DriveBundle\GoogleDriveExtractor;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Syrup\ComponentBundle\Controller\ApiController;
 
 class GoogleDriveController extends ApiController
 {
 	/** Tokens */
 
-	public function getExternalAuthLinkAction($accountId)
+	public function postExternalAuthLinkAction()
 	{
+		$post = $this->getPostJson($this->getRequest());
+
+		if (!isset($post['account'])) {
+			throw new ParameterMissingException("Parameter 'account' is required");
+		}
+
+		if (!isset($post['referrer'])) {
+			throw new ParameterMissingException("Parameter 'referrer' is required");
+		}
+
 		$token = $this->getComponent()->getToken();
+
+		$referrer = $post['referrer'] . '?token=' . $token['token'] .'&account=' . $post['account'];
 
 		$url = $this->generateUrl('keboola_google_drive_external_auth', array(
 			'token'     => $token['token'],
-			'account'   => $accountId,
-			'referrer'  => $this->generateUrl('keboola_google_drive_external_auth_finish', array(), true)
+			'account'   => $post['account'],
+			'referrer'  => $referrer
 		), true);
 
 		return $this->createJsonResponse(array(
