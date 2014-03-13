@@ -15,7 +15,7 @@ use Syrup\ComponentBundle\Exception\ApplicationException;
 
 class Account extends Table
 {
-	protected $_header = array('fileId', 'googleId', 'title', 'sheetId', 'sheetTitle', 'config');
+	protected $header = array('fileId', 'googleId', 'title', 'sheetId', 'sheetTitle', 'config');
 
 	protected $accountId;
 
@@ -36,8 +36,8 @@ class Account extends Table
 
 	public function getAttribute($key)
 	{
-		if (isset($this->_attributes[$key])) {
-			return $this->_attributes[$key];
+		if (isset($this->attributes[$key])) {
+			return $this->attributes[$key];
 		}
 		return null;
 	}
