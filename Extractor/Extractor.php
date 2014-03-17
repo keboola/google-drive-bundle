@@ -68,7 +68,12 @@ class Extractor
 
 				$status[$accountId][$sheet->getTitle()] = 'ok';
 				try {
-					$data = $this->driveApi->exportSpreadsheet($sheet->getGoogleId(), $sheet->getSheetId());
+
+					$meta = $this->driveApi->getFile($sheet->getGoogleId());
+					$exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
+
+					$data = $this->driveApi->export($exportLink);
+
 					if (!empty($data)) {
 						$this->dataManager->save($data, $sheet);
 					} else {

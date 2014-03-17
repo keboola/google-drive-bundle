@@ -217,19 +217,39 @@ class RestApi
 			'GET'
 		);
 
-		return $response;
+		return $response->json();
 	}
 
+	/**
+	 * @param        $googleId
+	 * @param int    $worksheet
+	 * @param string $format
+	 * @return \Guzzle\Http\EntityBodyInterface|string
+	 * @deprecated
+	 */
 	public function exportSpreadsheet($googleId, $worksheet = 0, $format = 'csv')
 	{
-		// . '&exportFormat=' . $format . '&gid=' . $worksheet
-
 		/** @var Response $response */
 		$response = $this->api->call(
 			self::EXPORT_SPREADSHEET . '?key=' . $googleId . '&exportFormat=' . $format . '&gid=' . $worksheet,
 			'GET',
 			array(
 				'Accept'		=> 'text/'. $format .'; charset=UTF-8',
+				'GData-Version' => '3.0'
+			)
+		);
+
+		return $response->getBody(true);
+	}
+
+	public function export($url)
+	{
+		/** @var Response $response */
+		$response = $this->api->call(
+			$url,
+			'GET',
+			array(
+				'Accept'		=> 'text/csv; charset=UTF-8',
 				'GData-Version' => '3.0'
 			)
 		);
