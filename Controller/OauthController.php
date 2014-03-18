@@ -30,6 +30,8 @@ class OauthController extends BaseController
 	 */
 	protected $sessionBag;
 
+	private $sessionTimeout = 600;
+
 	protected $componentName = 'ex-google-drive';
 
 	/**
@@ -119,24 +121,28 @@ class OauthController extends BaseController
 	public function oauthCallbackAction()
 	{
 		$bag = $this->initSessionBag();
-
-		$googleApi = $this->getGoogleApi();
-
 		$token = $bag->get('token');
 		$accountId = $bag->get('account');
 		$referrer = $bag->get('referrer');
 
-		$code = $this->get('request')->query->get('code');
+		/** @var Session $session */
+		$session = $this->container->get('session');
+		if (time() - $session->getMetadataBag()->getCreated() > $this->$sessionTimeout) {
+			$url = $this->container->get('router')->generate('keboola_google_drive_external_auth');
+			$url .= '?token=' . $token .'&account=' . $accountId . '&referrer=' . $referrer;
 
-		$bag->clear();
+			$session->invalidate();
 
-		if (empty($token) || empty($accountId)) {
-			throw new SyrupComponentException(400, 'Auth session expired');
+			return new RedirectResponse($url);
 		}
+
+		$code = $this->get('request')->query->get('code');
 
 		if (empty($code)) {
 			throw new SyrupComponentException(400, 'Could not read from Google API');
 		}
+
+		$googleApi = $this->getGoogleApi();
 
 		try {
 			$storageApi = new StorageApi($token, null, $this->componentName);
