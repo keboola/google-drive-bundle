@@ -127,7 +127,7 @@ class OauthController extends BaseController
 
 		/** @var Session $session */
 		$session = $this->container->get('session');
-		if (time() - $session->getMetadataBag()->getCreated() > $this->$sessionTimeout) {
+		if (time() - $session->getMetadataBag()->getCreated() > $this->sessionTimeout) {
 			$url = $this->container->get('router')->generate('keboola_google_drive_external_auth');
 			$url .= '?token=' . $token .'&account=' . $accountId . '&referrer=' . $referrer;
 
