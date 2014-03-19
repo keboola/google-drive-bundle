@@ -30,7 +30,7 @@ class OauthController extends BaseController
 	 */
 	protected $sessionBag;
 
-	private $sessionTimeout = 600;
+	private $sessionTimeout = 1200;
 
 	protected $componentName = 'ex-google-drive';
 
@@ -121,13 +121,14 @@ class OauthController extends BaseController
 	public function oauthCallbackAction()
 	{
 		$bag = $this->initSessionBag();
+
 		$token = $bag->get('token');
 		$accountId = $bag->get('account');
 		$referrer = $bag->get('referrer');
 
 		/** @var Session $session */
 		$session = $this->container->get('session');
-		if (time() - $session->getMetadataBag()->getCreated() > $this->sessionTimeout) {
+		if (time() - $session->getMetadataBag()->getCreated() > $this->sessionTimeout || null == $token) {
 			$url = $this->container->get('router')->generate('keboola_google_drive_external_auth');
 			$url .= '?token=' . $token .'&account=' . $accountId . '&referrer=' . $referrer;
 
@@ -152,7 +153,9 @@ class OauthController extends BaseController
 
 			$configuration = new Configuration($storageApi, $this->componentName, $encryptor);
 
-			$tokens = $googleApi->authorize($code, $this->container->get('router')->generate('keboola_google_drive_oauth_callback', array(), UrlGeneratorInterface::ABSOLUTE_URL));
+			$tokens = $googleApi->authorize($code, $this->container->get('router')->generate(
+				'keboola_google_drive_oauth_callback', array(), UrlGeneratorInterface::ABSOLUTE_URL)
+			);
 
 			$googleApi->setCredentials($tokens['access_token'], $tokens['refresh_token']);
 			$userData = $googleApi->call(RestApi::USER_INFO_URL)->json();
