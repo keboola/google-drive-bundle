@@ -96,7 +96,6 @@ class OauthController extends BaseController
 			throw new ParameterMissingException("Parameter 'account' is missing");
 		}
 
-		$this->container->get('session')->start();
 		$bag = $this->initSessionBag();
 		$googleApi = $this->getGoogleApi();
 
@@ -126,17 +125,6 @@ class OauthController extends BaseController
 		$token = $bag->get('token');
 		$accountId = $bag->get('account');
 		$referrer = $bag->get('referrer');
-
-		/** @var Session $session */
-		$session = $this->container->get('session');
-		if (time() - $session->getMetadataBag()->getCreated() > $this->sessionTimeout || null == $token) {
-			$url = $this->container->get('router')->generate('keboola_google_drive_external_auth');
-			$url .= '?token=' . $token .'&account=' . $accountId . '&referrer=' . $referrer;
-
-			$session->invalidate();
-
-			return new RedirectResponse($url);
-		}
 
 		$code = $this->get('request')->query->get('code');
 
