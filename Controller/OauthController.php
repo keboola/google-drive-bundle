@@ -96,6 +96,7 @@ class OauthController extends BaseController
 			throw new ParameterMissingException("Parameter 'account' is missing");
 		}
 
+		$this->container->get('session')->start();
 		$bag = $this->initSessionBag();
 		$googleApi = $this->getGoogleApi();
 
