@@ -67,11 +67,11 @@ class Extractor
 			foreach ($account->getSheets() as $sheet) {
 
 				$status[$accountId][$sheet->getTitle()] = 'ok';
+
+				$meta = $this->driveApi->getFile($sheet->getGoogleId());
+				$exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
+
 				try {
-
-					$meta = $this->driveApi->getFile($sheet->getGoogleId());
-					$exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
-
 					$data = $this->driveApi->export($exportLink);
 
 					if (!empty($data)) {
@@ -80,7 +80,7 @@ class Extractor
 						$status = "file is empty";
 					}
 				} catch (\Exception $e) {
-					$userException = new UserException("Error importing sheet '" . $sheet->getGoogleId() . "-".$sheet->getSheetId()."'", $e);
+					$userException = new UserException("Error importing sheet '" . $sheet->getGoogleId() . "-".$sheet->getSheetId()."'. " . $e->getMessage(), $e);
 					$userException->setData(array(
 						'accountId' => $accountId,
 						'sheet'     => $sheet->toArray()
