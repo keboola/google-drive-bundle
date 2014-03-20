@@ -8,6 +8,7 @@
 namespace Keboola\Google\DriveBundle\Controller;
 
 
+use InvalidArgumentException;
 use Keboola\Encryption\EncryptorInterface;
 use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
@@ -44,11 +45,16 @@ class OauthController extends BaseController
 		if (!$this->sessionBag) {
 			/** @var Session $session */
 			$session = $this->container->get('session');
-			$bag = new AttributeBag('_ex_google_drive');
-			$bag->setName('googledrive');
-			$session->registerBag($bag);
 
-			$this->sessionBag = $session->getBag('googledrive');
+			try {
+				$this->sessionBag = $session->getBag('googledrive');
+			} catch (InvalidArgumentException $e) {
+				$bag = new AttributeBag('_ex_google_drive');
+				$bag->setName('googledrive');
+				$session->registerBag($bag);
+
+				$this->sessionBag = $session->getBag('googledrive');
+			}
 		}
 
 		return $this->sessionBag;
