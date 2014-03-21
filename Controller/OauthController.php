@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Syrup\ComponentBundle\Controller\BaseController;
 use Syrup\ComponentBundle\Exception\SyrupComponentException;
+use Syrup\ComponentBundle\Exception\UserException;
 
 class OauthController extends BaseController
 {
@@ -42,19 +43,18 @@ class OauthController extends BaseController
 	 */
 	private function initSessionBag()
 	{
-		if (!$this->sessionBag) {
-			/** @var Session $session */
-			$session = $this->container->get('session');
 
-			try {
-				$this->sessionBag = $session->getBag('googledrive');
-			} catch (InvalidArgumentException $e) {
-				$bag = new AttributeBag('_ex_google_drive');
-				$bag->setName('googledrive');
-				$session->registerBag($bag);
+		/** @var Session $session */
+		$session = $this->container->get('session');
 
-				$this->sessionBag = $session->getBag('googledrive');
-			}
+		try {
+			$this->sessionBag = $session->getBag('googledrive');
+		} catch (InvalidArgumentException $e) {
+			$bag = new AttributeBag('_ex_google_drive');
+			$bag->setName('googledrive');
+			$session->registerBag($bag);
+
+			$this->sessionBag = $session->getBag('googledrive');
 		}
 
 		return $this->sessionBag;
@@ -102,7 +102,7 @@ class OauthController extends BaseController
 			throw new ParameterMissingException("Parameter 'account' is missing");
 		}
 
-		$bag = $this->initSessionBag();
+		$session = $this->get('session');
 		$googleApi = $this->getGoogleApi();
 
 		try {
@@ -114,9 +114,9 @@ class OauthController extends BaseController
 				'force'
 			);
 
-			$bag->set('token', $client->getTokenString());
-			$bag->set('account', $this->getRequest()->request->get('account'));
-			$bag->set('referrer', $this->getRequest()->request->get('referrer'));
+			$session->set('token', $client->getTokenString());
+			$session->set('account', $this->getRequest()->request->get('account'));
+			$session->set('referrer', $this->getRequest()->request->get('referrer'));
 
 			return new RedirectResponse($url);
 		} catch (\Exception $e) {
@@ -126,11 +126,15 @@ class OauthController extends BaseController
 
 	public function oauthCallbackAction()
 	{
-		$bag = $this->initSessionBag();
+		$session = $this->get('session');
 
-		$token = $bag->get('token');
-		$accountId = $bag->get('account');
-		$referrer = $bag->get('referrer');
+		$token = $session->get('token');
+		$accountId = $session->get('account');
+		$referrer = $session->get('referrer');
+
+		if ($token == null) {
+			throw new UserException("Your session expired, please try again");
+		}
 
 		$code = $this->get('request')->query->get('code');
 
@@ -169,6 +173,8 @@ class OauthController extends BaseController
 				->setRefreshToken($tokens['refresh_token'])
 			;
 			$account->save();
+
+			$this->container->get('session')->clear();
 
 			if ($referrer) {
 				return new RedirectResponse($referrer);
