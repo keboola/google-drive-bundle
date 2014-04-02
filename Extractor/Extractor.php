@@ -66,7 +66,7 @@ class Extractor
 			/** @var Sheet $sheet */
 			foreach ($account->getSheets() as $sheet) {
 
-				$status[$accountId][$sheet->getTitle()] = 'ok';
+				$status[$accountId][$sheet->getSheetTitle()] = 'ok';
 
 				$meta = $this->driveApi->getFile($sheet->getGoogleId());
 				$exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
@@ -77,7 +77,7 @@ class Extractor
 					if (!empty($data)) {
 						$this->dataManager->save($data, $sheet);
 					} else {
-						$status = "file is empty";
+						$status[$accountId][$sheet->getSheetTitle()] = "file is empty";
 					}
 				} catch (\Exception $e) {
 					$userException = new UserException("Error importing sheet '" . $sheet->getGoogleId() . "-".$sheet->getSheetId()."'. " . $e->getMessage(), $e);
