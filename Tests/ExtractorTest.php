@@ -291,8 +291,23 @@ class ExtractorTest extends WebTestCase
 		$this->createConfig();
 		$this->createAccount();
 
+		$referrerUrl = self::$client
+			->getContainer()
+			->get('router')
+			->generate('keboola_google_drive_post_external_auth_link', array(), true);
+
 		self::$client->followRedirects();
-		self::$client->request('GET', $this->componentName . '/external-link/' . $this->accountId);
+		self::$client->request(
+			'POST',
+			$this->componentName . '/external-link',
+			array(),
+			array(),
+			array(),
+			json_encode(array(
+				'account'   => $this->accountId,
+				'referrer'  => $referrerUrl
+			))
+		);
 
 		$responseJson = self::$client->getResponse()->getContent();
 		$response = json_decode($responseJson, true);
