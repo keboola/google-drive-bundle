@@ -1,0 +1,39 @@
+parameters:
+    app_name:          google-drive-bundle
+
+    database_driver:   pdo_mysql
+    database_host:     localhost
+    database_port:     ~
+    database_name:     symfony
+    database_user:     root
+    database_password: ~
+
+    mailer_transport:  smtp
+    mailer_host:       localhost
+    mailer_user:       ~
+    mailer_password:   ~
+
+    locale:            en
+    secret:            thisIsSecretHashBleeWieasalsfhlaf
+
+    kernel.trusted_hosts:  ~
+
+
+    storage_api.test.token:
+    storage_api.test.url:    https://connection.keboola.com
+    storage_api.url:         https://connection.keboola.com/
+
+    shared_sapi.url:   https://connection.keboola.com
+    shared_sapi.token:
+
+    google.client-id:
+    google.client-secret:
+
+    components:
+        api-google:
+            class:  Keboola\Google\ClientBundle\Client
+            bundle: Keboola\Google\ClientBundle\KeboolaGoogleClientBundle
+        ex-google-drive:
+            class:  Keboola\Google\DriveBundle\GoogleDriveExtractor
+            bundle: Keboola\Google\DriveBundle\KeboolaGoogleDriveBundle
+            encryption_key:
