@@ -138,7 +138,6 @@ class ExtractorTest extends WebTestCase
 			array(),
 			array(),
 			json_encode(array(
-				'id'            => 'test',
 				'name'          => 'Test',
 				'description'   => 'Test Account created by PhpUnit test suite'
 			))
