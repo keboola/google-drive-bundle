@@ -29,6 +29,13 @@ parameters:
     google.client-id:
     google.client-secret:
 
+    uploader:
+        aws-access-key:
+        aws-secret-key:
+        s3-upload-path:
+        bitly-login:
+        bitly-api-key:
+
     components:
         api-google:
             class:  Keboola\Google\ClientBundle\Client
