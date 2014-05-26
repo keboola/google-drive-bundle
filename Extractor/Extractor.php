@@ -44,16 +44,17 @@ class Extractor
 	{
 		$accounts = $this->configuration->getAccounts();
 
-		if (isset($options['account'])) {
-			if (!isset($accounts[$options['account']])) {
-				throw new ConfigurationException("Account '" . $options['account'] . "' does not exist.");
+		if (isset($options['account']) || isset($options['config'])) {
+
+			$accountId = isset($options['account'])?$options['account']:$options['config'];
+
+			if (!isset($accounts[$accountId])) {
+				throw new ConfigurationException("Account '" . $accountId . "' does not exist.");
 			}
 			$accounts = array(
-				$options['account'] => $accounts[$options['account']]
+				$accountId => $accounts[$accountId]
 			);
 		}
-
-		$status = array();
 
 		/** @var Account $account */
 		foreach ($accounts as $accountId => $account) {
@@ -65,8 +66,6 @@ class Extractor
 
 			/** @var Sheet $sheet */
 			foreach ($account->getSheets() as $sheet) {
-
-				$status[$accountId][$sheet->getSheetTitle()] = 'ok';
 
 				$meta = $this->driveApi->getFile($sheet->getGoogleId());
 				$exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
@@ -90,7 +89,9 @@ class Extractor
 			}
 		}
 
-		return $status;
+		return array(
+			"status"    => "ok"
+		);
 	}
 
 	public function setCurrAccountId($id)

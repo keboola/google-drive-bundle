@@ -21,8 +21,8 @@ use Syrup\ComponentBundle\Component\Component;
 
 class GoogleDriveExtractor extends Component
 {
-	protected $_name = 'google-drive';
-	protected $_prefix = 'ex';
+	protected $name = 'google-drive';
+	protected $prefix = 'ex';
 
 	/** @var Extractor */
 	protected $extractor;
@@ -36,7 +36,7 @@ class GoogleDriveExtractor extends Component
 	protected function getConfiguration()
 	{
 		if ($this->configuration == null) {
-			$this->configuration = new Configuration($this->_storageApi, $this->getFullName(), $this->_container->get('syrup.encryptor'));
+			$this->configuration = new Configuration($this->storageApi, $this->getFullName(), $this->container->get('syrup.encryptor'));
 		}
 		return $this->configuration;
 	}
@@ -59,10 +59,10 @@ class GoogleDriveExtractor extends Component
 	protected function getApi(Account $account)
 	{
 		/** @var RestApi $googleDriveApi */
-		$googleDriveApi = $this->_container->get('google_drive_rest_api');
+		$googleDriveApi = $this->container->get('google_drive_rest_api');
 		$googleDriveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
 
-		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->_log, $this->getTemp());
+		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->log, $this->getTemp());
 		$this->extractor->setCurrAccountId($account->getAccountId());
 
 		$googleDriveApi->getApi()->setRefreshTokenCallback(array($this->extractor, 'refreshTokenCallback'));
@@ -73,9 +73,9 @@ class GoogleDriveExtractor extends Component
 	public function postRun($params)
 	{
 		/** @var RestApi $googleDriveApi */
-		$googleDriveApi = $this->_container->get('google_drive_rest_api');
+		$googleDriveApi = $this->container->get('google_drive_rest_api');
 
-		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->_log, $this->getTemp());
+		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->log, $this->getTemp());
 		$status = $this->extractor->run($params);
 
 		return array(
