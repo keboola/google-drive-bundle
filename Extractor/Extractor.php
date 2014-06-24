@@ -13,8 +13,9 @@ use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
 use Monolog\Logger;
+use SplFileInfo;
 use Syrup\ComponentBundle\Exception\UserException;
-use Syrup\ComponentBundle\Filesystem\TempService;
+use Syrup\ComponentBundle\Filesystem\Temp;
 
 class Extractor
 {
@@ -32,16 +33,28 @@ class Extractor
 	/** @var Logger */
 	protected $logger;
 
-	public function __construct(RestApi $driveApi, $configuration, Logger $logger, TempService $temp)
+	/** @var Temp */
+	protected $temp;
+
+	/** @var Xlsx2Csv */
+	protected $xlsx2Csv;
+
+	public function __construct(RestApi $driveApi, Logger $logger, Temp $temp)
 	{
 		$this->driveApi = $driveApi;
-		$this->configuration = $configuration;
 		$this->logger = $logger;
-		$this->dataManager = new DataManager($configuration, $temp);
+		$this->temp = $temp;
+	}
+
+	public function setConfiguration(Configuration $configuration)
+	{
+		$this->configuration = $configuration;
 	}
 
 	public function run($options = null)
 	{
+		$this->dataManager = new DataManager($this->configuration, $this->temp);
+
 		$accounts = $this->configuration->getAccounts();
 
 		if (isset($options['account']) || isset($options['config'])) {
@@ -110,6 +123,28 @@ class Extractor
 		$account->setAccessToken($accessToken);
 		$account->setRefreshToken($refreshToken);
 		$account->save();
+	}
+
+	protected function createTempXlsx(Sheet $sheet)
+	{
+		$fileName = str_replace(' ', '-', $sheet->getGoogleId()) . "_" . date('Y-m-d') . '-' . uniqid() . ".xlsx";
+
+		/** @var SplFileInfo $fileInfo */
+		$fileInfo = $this->temp->createFile($fileName, true);
+
+		return $fileInfo->getPathname();
+	}
+
+	protected function convertSheet($srcFile, Sheet $sheet)
+	{
+		$fileName = str_replace(' ', '-', $sheet->getTitle()) . "_" . $sheet->getSheetId() . "_" . date('Y-m-d') . '-' . uniqid() . ".csv";
+
+		/** @var SplFileInfo $fileInfo */
+		$fileInfo = $this->temp->createFile($fileName, true);
+
+		$this->xlsx2Csv->convert($srcFile, $fileInfo->getPathname());
+
+		return $fileInfo->getPathname();
 	}
 
 }

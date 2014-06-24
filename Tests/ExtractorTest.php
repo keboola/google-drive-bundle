@@ -10,8 +10,7 @@ use Keboola\StorageApi\Config\Reader;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Client;
-use Syrup\ComponentBundle\Service\Encryption\Encryptor;
-use Syrup\ComponentBundle\Service\Encryption\EncryptorFactory;
+use Syrup\ComponentBundle\Encryption\Encryptor;
 
 class ExtractorTest extends WebTestCase
 {
@@ -68,11 +67,10 @@ class ExtractorTest extends WebTestCase
 			'userAgent' =>  $this->componentName
 		]);
 
-		/** @var EncryptorFactory $encryptorFactory */
-		$encryptorFactory = $container->get('syrup.encryptor_factory');
-		$this->encryptor = $encryptorFactory->get($this->componentName);
+		$this->encryptor = $container->get('syrup.encryptor');
 
-		$this->configuration = new Configuration($this->storageApi, $this->componentName, $this->encryptor);
+		$this->configuration = $container->get('ex_google_drive.configuration');
+		$this->configuration->setStorageApi($this->storageApi);
 
 		try {
 			$this->configuration->create();
@@ -186,36 +184,6 @@ class ExtractorTest extends WebTestCase
 	 * Accounts
 	 */
 
-	public function testPostAccount()
-	{
-		$this->createConfig();
-
-		self::$client->request(
-			'POST', $this->componentName . '/account',
-			array(),
-			array(),
-			array(),
-			json_encode(array(
-				'id'            => $this->accountId,
-				'googleId'      => $this->googleId,
-				'googleName'    => $this->googleName,
-				'email'         => $this->email,
-				'accessToken'   => $this->accessToken,
-				'refreshToken'  => $this->refreshToken
-			))
-		);
-
-		$responseJson = self::$client->getResponse()->getContent();
-		$response = json_decode($responseJson, true);
-
-		$this->assertEquals('test', $response['id']);
-
-		$accounts = $this->configuration->getAccounts();
-		$account = $accounts['test'];
-
-		$this->assertAccount($account);
-	}
-
 	public function testGetAccount()
 	{
 		$this->createConfig();
@@ -229,25 +197,6 @@ class ExtractorTest extends WebTestCase
 		$account = $this->configuration->getAccountBy('accountId', $response['accountId']);
 
 		$this->assertAccount($account);
-	}
-
-	public function testGetAccounts()
-	{
-		$this->createConfig();
-		$this->createAccount();
-
-		self::$client->request(
-			'GET', $this->componentName . '/accounts'
-		);
-
-		$responseJson = self::$client->getResponse()->getContent();
-		$response = json_decode($responseJson, true);
-
-		$this->assertNotEmpty($response);
-
-		$accountArr = array_shift($response);
-
-		$this->assertAccount($this->configuration->getAccountBy('accountId', $accountArr['accountId']));
 	}
 
 	public function testPostSheets()

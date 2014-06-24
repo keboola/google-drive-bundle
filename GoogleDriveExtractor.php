@@ -36,7 +36,8 @@ class GoogleDriveExtractor extends Component
 	protected function getConfiguration()
 	{
 		if ($this->configuration == null) {
-			$this->configuration = new Configuration($this->storageApi, $this->getFullName(), $this->container->get('syrup.encryptor'));
+			$this->configuration = $this->container->get('ex_google_drive.configuration');
+			$this->configuration->setStorageApi($this->storageApi);
 		}
 		return $this->configuration;
 	}
@@ -59,10 +60,11 @@ class GoogleDriveExtractor extends Component
 	protected function getApi(Account $account)
 	{
 		/** @var RestApi $googleDriveApi */
-		$googleDriveApi = $this->container->get('google_drive_rest_api');
+		$googleDriveApi = $this->container->get('ex_google_drive.rest_api');
 		$googleDriveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
 
-		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->log, $this->getTemp());
+		$this->extractor = $this->container->get('ex_google_drive.extractor');
+		$this->extractor->setConfiguration($this->getConfiguration());
 		$this->extractor->setCurrAccountId($account->getAccountId());
 
 		$googleDriveApi->getApi()->setRefreshTokenCallback(array($this->extractor, 'refreshTokenCallback'));
@@ -72,10 +74,9 @@ class GoogleDriveExtractor extends Component
 
 	public function postRun($params)
 	{
-		/** @var RestApi $googleDriveApi */
-		$googleDriveApi = $this->container->get('google_drive_rest_api');
+		$this->extractor = $this->container->get('ex_google_drive.extractor');
+		$this->extractor->setConfiguration($this->getConfiguration());
 
-		$this->extractor = new Extractor($googleDriveApi, $this->getConfiguration(), $this->log, $this->getTemp());
 		$status = $this->extractor->run($params);
 
 		return array(
@@ -245,6 +246,20 @@ class GoogleDriveExtractor extends Component
 	{
 		$this->getConfiguration()->removeSheet($accountId, $fileId, $sheetId);
 	}
+
+	public function exportFile($accountId, $fileId)
+	{
+		/** @var Account $account */
+		$account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
+
+		$googleDriveApi = $this->getApi($account);
+
+		$meta = $googleDriveApi->getFile($fileId);
+		$exportLink = $meta['exportLinks']['application/xlsx'];
+
+		return $googleDriveApi->export($exportLink);
+	}
+
 
 	public function getToken()
 	{

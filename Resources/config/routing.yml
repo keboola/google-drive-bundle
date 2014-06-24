@@ -77,3 +77,4 @@ keboola_google_drive_delete_sheet:
     path: /sheet/{accountId}/{fileId}/{sheetId}
     defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:deleteSheet }
     methods:  [DELETE]
+

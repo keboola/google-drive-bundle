@@ -30,6 +30,7 @@ class RestApi
 	const SPREADSHEET_WORKSHEETS = 'https://spreadsheets.google.com/feeds/worksheets';
 
 	const EXPORT_SPREADSHEET = 'https://spreadsheets.google.com/feeds/download/spreadsheets/Export';
+	const LIST_SPREADSHEET = 'https://spreadsheets.google.com/feeds/cells/%key%/%worksheetId%/private/full';
 
 	const ACCOUNTS_URL = 'https://www.googleapis.com/analytics/v3/management/accounts';
 	const DATA_URL = 'https://www.googleapis.com/analytics/v3/data/ga';
@@ -99,7 +100,7 @@ class RestApi
 			foreach($response['feed']['entry'] as $entry) {
 				$wsUri = explode('/', $entry['id']['$t']);
 				$wsId = array_pop($wsUri);
-				$gid = $this->toGid($wsId);
+				$gid = $this->getGid($entry['link']);
 				$result[$gid] = array(
 					'id'    => $gid,
 					'wsid'  => $wsId,
@@ -113,6 +114,18 @@ class RestApi
 		return false;
 	}
 
+	protected function getGid($links)
+	{
+		foreach ($links as $link) {
+			if ($link['type'] == 'text/csv') {
+				$linkArr = explode('?', $link['href']);
+				$paramArr = explode('&', $linkArr[1]);
+
+				return str_replace('gid=', '', $paramArr[0]);
+			}
+		}
+	}
+
 	public function getFile($googleId)
 	{
 		$response = $this->api->call(
@@ -123,27 +136,21 @@ class RestApi
 		return $response->json();
 	}
 
-	/**
-	 * @param        $googleId
-	 * @param int    $worksheet
-	 * @param string $format
-	 * @return \Guzzle\Http\EntityBodyInterface|string
-	 * @deprecated
-	 */
-	public function exportSpreadsheet($googleId, $worksheet = 0, $format = 'csv')
+	public function exportSpreadsheet($key, $worksheet = 0)
 	{
-		$uri = self::EXPORT_SPREADSHEET . '?key=' . $googleId . '&exportFormat=' . $format;
+//		$uri = self::EXPORT_SPREADSHEET . '?key=' . $googleId . '&exportFormat=' . $format;
+		$uri = str_replace(array('%key%', '%worksheetId%'), array($key, $worksheet), self::LIST_SPREADSHEET) . '?alt=json';
 
-		if ($worksheet !== 0) {
-			$uri .= '&gid=' . $worksheet;
-		}
+//		if ($worksheet !== 0) {
+//			$uri .= '&gid=' . $worksheet;
+//		}
 
 		/** @var Response $response */
 		$response = $this->api->call(
 			$uri,
 			'GET',
 			array(
-				'Accept'		=> 'text/'. $format .'; charset=UTF-8',
+				'Accept'		=> 'application/json',
 				'GData-Version' => '3.0'
 			)
 		);

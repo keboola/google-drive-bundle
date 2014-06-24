@@ -36,6 +36,22 @@ parameters:
         bitly-login:
         bitly-api-key:
 
+	queue:
+        access_key:
+        secret_key:
+        region:
+        url:
+
+    elasticsearch:
+        hosts: [localhost:9200]
+
+    job_manager:
+        index_prefix: devel
+
+	encryption_key:
+
+	xlsx2csv_path:
+
     components:
         api-google:
             class:  Keboola\Google\ClientBundle\Client
@@ -43,4 +59,3 @@ parameters:
         ex-google-drive:
             class:  Keboola\Google\DriveBundle\GoogleDriveExtractor
             bundle: Keboola\Google\DriveBundle\KeboolaGoogleDriveBundle
-            encryption_key:

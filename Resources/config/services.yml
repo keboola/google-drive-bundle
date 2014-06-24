@@ -1,6 +1,16 @@
-parameters:
-
 services:
-    google_drive_rest_api:
+    ex_google_drive.rest_api:
         class: Keboola\Google\DriveBundle\GoogleDrive\RestApi
         arguments: [@google_rest_api]
+
+    ex_google_drive.job_executor:
+        class: Keboola\Google\DriveBundle\Job\Executor
+        arguments: [@ex_google_drive.configuration, @ex_google_drive.extractor]
+
+    ex_google_drive.extractor:
+        class: Keboola\Google\DriveBundle\Extractor\Extractor
+        arguments: [@ex_google_drive.rest_api, @logger, @syrup.temp]
+
+    ex_google_drive.configuration:
+        class: Keboola\Google\DriveBundle\Extractor\Configuration
+        arguments: [%app_name%, @syrup.encryptor]

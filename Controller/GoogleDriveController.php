@@ -11,6 +11,7 @@ namespace Keboola\Google\DriveBundle\Controller;
 use Keboola\Google\DriveBundle\Exception\ParameterMissingException;
 use Keboola\Google\DriveBundle\GoogleDriveExtractor;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Syrup\ComponentBundle\Controller\ApiController;
 
 class GoogleDriveController extends ApiController
@@ -51,9 +52,9 @@ class GoogleDriveController extends ApiController
 		return $this->getJsonResponse($this->getComponent()->getConfigs());
 	}
 
-	public function postConfigsAction()
+	public function postConfigsAction(Request $request)
 	{
-		$account = $this->getComponent()->postConfigs($this->getPostJson($this->getRequest()));
+		$account = $this->getComponent()->postConfigs($this->getPostJson($request));
 
 		return $this->getJsonResponse(array(
 			'id'    => $account->getAccountId(),
@@ -98,9 +99,9 @@ class GoogleDriveController extends ApiController
 		return $this->getJsonResponse($this->getComponent()->getSheets($accountId, $fileId));
 	}
 
-	public function postSheetsAction($accountId)
+	public function postSheetsAction($accountId, Request $request)
 	{
-		return $this->getJsonResponse($this->getComponent()->postSheets($accountId, $this->getPostJson($this->getRequest())));
+		return $this->getJsonResponse($this->getComponent()->postSheets($accountId, $this->getPostJson($request)));
 	}
 
 	public function deleteSheetAction($accountId, $fileId, $sheetId)
@@ -109,7 +110,6 @@ class GoogleDriveController extends ApiController
 
 		return $this->getJsonResponse(array(), 204);
 	}
-
 
 	/**
 	 * @return GoogleDriveExtractor

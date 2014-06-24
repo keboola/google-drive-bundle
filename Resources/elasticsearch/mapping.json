@@ -1,0 +1,75 @@
+{
+	"settings": {
+		"number_of_replicas": 1,
+		"number_of_shards": 5,
+		"analysis": {
+			"analyzer": {
+				"email": {
+					"tokenizer": "letter",
+					"filter": ["lowercase", "stop"]
+				}
+			}
+		}
+	},
+	"mappings": {
+		"jobs_ex-google-drive": {
+			"_all" : {
+				"enabled" : true,
+				"analyzer": "snowball"
+			},
+			"date_detection": false,
+			"numeric_detection": false,
+			"dynamic": "strict",
+			"properties": {
+				"id": {
+					"type": "long"
+				},
+				"runId": {
+					"index": "not_analyzed",
+					"type": "string"
+				},
+				"projectId": {
+					"type": "long"
+				},
+				"lockName": {
+					"index": "not_analyzed",
+					"type": "string"
+				},
+				"token": {
+					"index": "not_analyzed",
+					"type": "string"
+				},
+				"component": {
+					"index": "not_analyzed",
+					"type": "string"
+				},
+				"command": {
+					"index": "not_analyzed",
+					"type": "string"
+				},
+				"params": {
+					"dynamic": "strict",
+					"properties": {
+						"account": {
+							"type": "string"
+						}
+					}
+				},
+				"result": {
+					"type": "object",
+					"enabled": false
+				},
+				"status": {
+					"type": "string"
+				},
+				"created": {
+					"format": "dateOptionalTime",
+					"type": "date"
+				},
+				"duration": {
+					"type": "long"
+				}
+			}
+		}
+	}
+}
