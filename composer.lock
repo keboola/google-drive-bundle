@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6c99458e8b830aab1e8d5df19368ab3f",
+    "hash": "42041700409004b331aa2410b3a72fba",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -1508,16 +1508,16 @@
         },
         {
             "name": "pimple/pimple",
-            "version": "v2.1.0",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fabpot/Pimple.git",
-                "reference": "90b4710f115766d12e1a579b816c0974887b87a7"
+                "reference": "f99b3df12991c22463927aa6a18fd9b2212917f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Pimple/zipball/90b4710f115766d12e1a579b816c0974887b87a7",
-                "reference": "90b4710f115766d12e1a579b816c0974887b87a7",
+                "url": "https://api.github.com/repos/fabpot/Pimple/zipball/f99b3df12991c22463927aa6a18fd9b2212917f2",
+                "reference": "f99b3df12991c22463927aa6a18fd9b2212917f2",
                 "shasum": ""
             },
             "require": {
@@ -1526,12 +1526,12 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1.x-dev"
+                    "dev-master": "2.0.x-dev"
                 }
             },
             "autoload": {
                 "psr-0": {
-                    "Pimple": "src/"
+                    "Pimple": "lib/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1552,7 +1552,7 @@
                 "container",
                 "dependency injection"
             ],
-            "time": "2014-05-01 10:34:00"
+            "time": "2014-02-10 08:05:32"
         },
         {
             "name": "psr/log",
@@ -2159,17 +2159,17 @@
         },
         {
             "name": "syrup/component-bundle",
-            "version": "1.6.3",
+            "version": "1.6.4",
             "target-dir": "Syrup/ComponentBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup-component-bundle.git",
-                "reference": "f1145876a29f767a071e3bd82a41bc01885f4eab"
+                "reference": "49334a0ebfd50bf559c2420fa97e753f1715a758"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/f1145876a29f767a071e3bd82a41bc01885f4eab",
-                "reference": "f1145876a29f767a071e3bd82a41bc01885f4eab",
+                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/49334a0ebfd50bf559c2420fa97e753f1715a758",
+                "reference": "49334a0ebfd50bf559c2420fa97e753f1715a758",
                 "shasum": ""
             },
             "require": {
@@ -2210,7 +2210,7 @@
                 }
             ],
             "description": "Syrup ComponentBundle",
-            "time": "2014-06-24 14:14:46"
+            "time": "2014-06-24 14:32:05"
         },
         {
             "name": "twig/twig",
