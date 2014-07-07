@@ -28,16 +28,35 @@
 					"index": "not_analyzed",
 					"type": "string"
 				},
-				"projectId": {
-					"type": "long"
-				},
 				"lockName": {
 					"index": "not_analyzed",
 					"type": "string"
 				},
+				"project": {
+					"dynamic": "strict",
+					"properties": {
+						"id": {
+							"type": "long"
+						},
+						"name": {
+							"type": "string"
+						}
+					}
+				},
 				"token": {
-					"index": "not_analyzed",
-					"type": "string"
+					"dynamic": "strict",
+					"properties": {
+						"id": {
+							"type": "long"
+						},
+						"description": {
+							"type": "string"
+						},
+						"token": {
+							"index": "not_analyzed",
+							"type": "string"
+						}
+					}
 				},
 				"component": {
 					"index": "not_analyzed",
@@ -62,11 +81,33 @@
 				"status": {
 					"type": "string"
 				},
-				"created": {
+				"process": {
+					"dynamic": "strict",
+					"properties": {
+						"host": {
+							"type": "string"
+						},
+						"pid": {
+							"type": "long"
+						}
+					}
+				},
+				"createdTime": {
 					"format": "dateOptionalTime",
 					"type": "date"
 				},
-				"duration": {
+				"startTime": {
+					"format": "dateOptionalTime",
+					"type": "date"
+				},
+				"endTime": {
+					"format": "dateOptionalTime",
+					"type": "date"
+				},
+				"durationSeconds": {
+					"type": "long"
+				},
+				"waitSeconds": {
 					"type": "long"
 				}
 			}

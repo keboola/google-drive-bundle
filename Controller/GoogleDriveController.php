@@ -16,11 +16,21 @@ use Syrup\ComponentBundle\Controller\ApiController;
 
 class GoogleDriveController extends ApiController
 {
+
+	// @todo: refactor
+	public function preExecute(Request $request)
+	{
+		parent::preExecute($request);
+
+		$this->initStorageApi();
+		$this->initComponent($this->storageApi, $this->componentName);
+	}
+
 	/** Tokens */
 
-	public function postExternalAuthLinkAction()
+	public function postExternalAuthLinkAction(Request $request)
 	{
-		$post = $this->getPostJson($this->getRequest());
+		$post = $this->getPostJson($request);
 
 		if (!isset($post['account'])) {
 			throw new ParameterMissingException("Parameter 'account' is required");

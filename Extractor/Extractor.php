@@ -36,9 +36,6 @@ class Extractor
 	/** @var Temp */
 	protected $temp;
 
-	/** @var Xlsx2Csv */
-	protected $xlsx2Csv;
-
 	public function __construct(RestApi $driveApi, Logger $logger, Temp $temp)
 	{
 		$this->driveApi = $driveApi;
@@ -124,27 +121,4 @@ class Extractor
 		$account->setRefreshToken($refreshToken);
 		$account->save();
 	}
-
-	protected function createTempXlsx(Sheet $sheet)
-	{
-		$fileName = str_replace(' ', '-', $sheet->getGoogleId()) . "_" . date('Y-m-d') . '-' . uniqid() . ".xlsx";
-
-		/** @var SplFileInfo $fileInfo */
-		$fileInfo = $this->temp->createFile($fileName, true);
-
-		return $fileInfo->getPathname();
-	}
-
-	protected function convertSheet($srcFile, Sheet $sheet)
-	{
-		$fileName = str_replace(' ', '-', $sheet->getTitle()) . "_" . $sheet->getSheetId() . "_" . date('Y-m-d') . '-' . uniqid() . ".csv";
-
-		/** @var SplFileInfo $fileInfo */
-		$fileInfo = $this->temp->createFile($fileName, true);
-
-		$this->xlsx2Csv->convert($srcFile, $fileInfo->getPathname());
-
-		return $fileInfo->getPathname();
-	}
-
 }

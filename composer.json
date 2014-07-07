@@ -18,7 +18,7 @@
 	"require": {
 		"php": ">=5.3.5",
 		"keboola/google-client-bundle": "~1.1.4",
-		"syrup/component-bundle": "~1.6.2",
+		"syrup/component-bundle": "~1.7.2",
 		"pimple/pimple": "2.0.*"
 	},
 	"require-dev": {

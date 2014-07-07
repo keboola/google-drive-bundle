@@ -8,6 +8,12 @@ parameters:
     database_user:     root
     database_password: ~
 
+    pdo.db_options:
+        db_table:    session
+        db_id_col:   id
+        db_data_col: value
+        db_time_col: time
+
     mailer_transport:  smtp
     mailer_host:       localhost
     mailer_user:       ~
@@ -37,10 +43,8 @@ parameters:
         bitly-api-key:
 
 	queue:
-        access_key:
-        secret_key:
-        region:
         url:
+        db_table: queues
 
     elasticsearch:
         hosts: [localhost:9200]
@@ -50,12 +54,10 @@ parameters:
 
 	encryption_key:
 
-	xlsx2csv_path:
-
     components:
         api-google:
-            class:  Keboola\Google\ClientBundle\Client
+            class: Keboola\Google\ClientBundle\Client
             bundle: Keboola\Google\ClientBundle\KeboolaGoogleClientBundle
         ex-google-drive:
-            class:  Keboola\Google\DriveBundle\GoogleDriveExtractor
+            class: Keboola\Google\DriveBundle\GoogleDriveExtractor
             bundle: Keboola\Google\DriveBundle\KeboolaGoogleDriveBundle

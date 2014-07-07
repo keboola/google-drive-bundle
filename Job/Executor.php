@@ -44,20 +44,6 @@ class Executor extends BaseExecutor
 	{
 		$this->extractor->setConfiguration($this->initConfiguration());
 
-		// @todo get params from job
-		$status = $this->extractor->run(array('account' => 'new3'));
-	}
-
-	/**
-	 * @param Account $account
-	 * @internal param $accessToken
-	 * @internal param $refreshToken
-	 * @return RestApi
-	 */
-	protected function getApi(Account $account)
-	{
-//		$googleDriveApi->getApi()->setRefreshTokenCallback(array($this->extractor, 'refreshTokenCallback'));
-
-//		return $googleDriveApi;
+		return $this->extractor->run($job->getParams());
 	}
 }
