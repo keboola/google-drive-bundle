@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "2.6.11",
+            "version": "2.6.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "1ffd7d850c8c40f97befa917a58467db101786a4"
+                "reference": "88d075461e95111a5e42ead60c68e847c1856cc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1ffd7d850c8c40f97befa917a58467db101786a4",
-                "reference": "1ffd7d850c8c40f97befa917a58467db101786a4",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/88d075461e95111a5e42ead60c68e847c1856cc3",
+                "reference": "88d075461e95111a5e42ead60c68e847c1856cc3",
                 "shasum": ""
             },
             "require": {
@@ -72,7 +72,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2014-07-10 21:15:25"
+            "time": "2014-07-16 21:01:13"
         },
         {
             "name": "doctrine/annotations",
@@ -1286,16 +1286,16 @@
         },
         {
             "name": "keboola/storage-api-client",
-            "version": "2.11.15",
+            "version": "2.11.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/storage-api-php-client.git",
-                "reference": "3827cbae6053d0726ad548617f5d22e222013159"
+                "reference": "5111168af153dd490d71bf87abc72208862011eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/storage-api-php-client/zipball/3827cbae6053d0726ad548617f5d22e222013159",
-                "reference": "3827cbae6053d0726ad548617f5d22e222013159",
+                "url": "https://api.github.com/repos/keboola/storage-api-php-client/zipball/5111168af153dd490d71bf87abc72208862011eb",
+                "reference": "5111168af153dd490d71bf87abc72208862011eb",
                 "shasum": ""
             },
             "require": {
@@ -1322,20 +1322,20 @@
             ],
             "description": "Keboola Storage API PHP CLient",
             "homepage": "http://keboola.com",
-            "time": "2014-07-16 08:11:02"
+            "time": "2014-07-17 13:33:49"
         },
         {
             "name": "keboola/syrup",
-            "version": "1.4.6",
+            "version": "1.4.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup.git",
-                "reference": "941f5f46c1ed07a91e389631cb1fd8b371c53ed6"
+                "reference": "ea92072ca7cc7241f93e8a504cf6ec9a18462825"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup/zipball/941f5f46c1ed07a91e389631cb1fd8b371c53ed6",
-                "reference": "941f5f46c1ed07a91e389631cb1fd8b371c53ed6",
+                "url": "https://api.github.com/repos/keboola/syrup/zipball/ea92072ca7cc7241f93e8a504cf6ec9a18462825",
+                "reference": "ea92072ca7cc7241f93e8a504cf6ec9a18462825",
                 "shasum": ""
             },
             "require": {
@@ -1366,7 +1366,7 @@
                 "MIT"
             ],
             "description": "Syrup - Concentrated extract(or)s",
-            "time": "2014-06-12 14:40:53"
+            "time": "2014-07-18 09:16:48"
         },
         {
             "name": "kriswallsmith/assetic",
@@ -2160,17 +2160,17 @@
         },
         {
             "name": "syrup/component-bundle",
-            "version": "1.7.9",
+            "version": "1.7.12",
             "target-dir": "Syrup/ComponentBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup-component-bundle.git",
-                "reference": "f662b98fb17e68f417bf4f96a0c730782d9fc832"
+                "reference": "88b7e447adb36f51eadd877716feb3b1400eba1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/f662b98fb17e68f417bf4f96a0c730782d9fc832",
-                "reference": "f662b98fb17e68f417bf4f96a0c730782d9fc832",
+                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/88b7e447adb36f51eadd877716feb3b1400eba1e",
+                "reference": "88b7e447adb36f51eadd877716feb3b1400eba1e",
                 "shasum": ""
             },
             "require": {
@@ -2211,7 +2211,7 @@
                 }
             ],
             "description": "Syrup ComponentBundle",
-            "time": "2014-07-16 13:47:32"
+            "time": "2014-07-18 14:30:18"
         },
         {
             "name": "twig/twig",
