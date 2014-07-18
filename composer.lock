@@ -2160,17 +2160,17 @@
         },
         {
             "name": "syrup/component-bundle",
-            "version": "1.7.12",
+            "version": "1.7.13",
             "target-dir": "Syrup/ComponentBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup-component-bundle.git",
-                "reference": "88b7e447adb36f51eadd877716feb3b1400eba1e"
+                "reference": "a42740b9157a35172ab5b59295fb44088ff4ae84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/88b7e447adb36f51eadd877716feb3b1400eba1e",
-                "reference": "88b7e447adb36f51eadd877716feb3b1400eba1e",
+                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/a42740b9157a35172ab5b59295fb44088ff4ae84",
+                "reference": "a42740b9157a35172ab5b59295fb44088ff4ae84",
                 "shasum": ""
             },
             "require": {
@@ -2211,7 +2211,7 @@
                 }
             ],
             "description": "Syrup ComponentBundle",
-            "time": "2014-07-18 14:30:18"
+            "time": "2014-07-18 16:00:16"
         },
         {
             "name": "twig/twig",
