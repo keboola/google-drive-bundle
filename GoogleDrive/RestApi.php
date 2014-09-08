@@ -101,6 +101,11 @@ class RestApi
 				$wsUri = explode('/', $entry['id']['$t']);
 				$wsId = array_pop($wsUri);
 				$gid = $this->getGid($entry['link']);
+
+				if ($gid == null) {
+					$gid = $this->toGid($wsId);
+				}
+
 				$result[$gid] = array(
 					'id'    => $gid,
 					'wsid'  => $wsId,
