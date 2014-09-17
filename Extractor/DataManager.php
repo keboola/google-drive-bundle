@@ -31,6 +31,8 @@ class DataManager
 
 	public function save($data, Sheet $sheet)
 	{
+		$this->temp->setPreserveRunFolder(true);
+
 		$sheetConfig = $sheet->getConfig();
 		$tmpFilename = $this->writeRawCsv($data, $sheet);
 
@@ -57,6 +59,7 @@ class DataManager
 		if (!$fh) {
 			throw new \Exception("Can't write to file " . $fileInfo->getPathname());
 		}
+
 		fwrite($fh, $data);
 		fclose($fh);
 
