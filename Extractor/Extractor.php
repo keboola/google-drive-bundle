@@ -78,6 +78,7 @@ class Extractor
 			foreach ($account->getSheets() as $sheet) {
 
 				$meta = $this->driveApi->getFile($sheet->getGoogleId());
+
 				$exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
 
 				try {

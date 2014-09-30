@@ -31,8 +31,6 @@ class DataManager
 
 	public function save($data, Sheet $sheet)
 	{
-		$this->temp->setPreserveRunFolder(true);
-
 		$sheetConfig = $sheet->getConfig();
 		$tmpFilename = $this->writeRawCsv($data, $sheet);
 
