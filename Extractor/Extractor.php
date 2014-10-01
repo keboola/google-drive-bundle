@@ -14,6 +14,7 @@ use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
 use Monolog\Logger;
 use SplFileInfo;
+use Syrup\ComponentBundle\Exception\ApplicationException;
 use Syrup\ComponentBundle\Exception\UserException;
 use Syrup\ComponentBundle\Filesystem\Temp;
 
@@ -78,6 +79,14 @@ class Extractor
 			foreach ($account->getSheets() as $sheet) {
 
 				$meta = $this->driveApi->getFile($sheet->getGoogleId());
+
+				if (!isset($meta['exportLinks'])) {
+					$e = new ApplicationException("ExportLinks missing in file resource");
+					$e->setData([
+						'fileMetadata'  => $meta
+					]);
+					throw $e;
+				}
 
 				$exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
 
