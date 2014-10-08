@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b161972dce26bea847c75c4401643a9d",
+    "hash": "82c10332ffcbfd67b15f88a8dde4f9e9",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -1360,16 +1360,16 @@
         },
         {
             "name": "keboola/syrup",
-            "version": "1.6.2",
+            "version": "1.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup.git",
-                "reference": "9e2819b21a4f0d7bed6fc2d884b818cf5e63d9e0"
+                "reference": "9f4f2aa543e29ce7d508180d336197688bd802ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup/zipball/9e2819b21a4f0d7bed6fc2d884b818cf5e63d9e0",
-                "reference": "9e2819b21a4f0d7bed6fc2d884b818cf5e63d9e0",
+                "url": "https://api.github.com/repos/keboola/syrup/zipball/9f4f2aa543e29ce7d508180d336197688bd802ff",
+                "reference": "9f4f2aa543e29ce7d508180d336197688bd802ff",
                 "shasum": ""
             },
             "require": {
@@ -1400,7 +1400,7 @@
                 "MIT"
             ],
             "description": "Syrup - Concentrated extract(or)s",
-            "time": "2014-10-07 13:45:18"
+            "time": "2014-10-08 15:44:14"
         },
         {
             "name": "kriswallsmith/assetic",
