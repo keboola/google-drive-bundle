@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f7cf31c3c4a6b0be09d6fc3f4cacd59d",
+    "hash": "b161972dce26bea847c75c4401643a9d",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -610,16 +610,16 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "v2.4.5",
+            "version": "v2.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/doctrine2.git",
-                "reference": "c0d3cdbdfbf873871167050ab077e49b1ad02ab0"
+                "reference": "bebacf79d8d4dae9168f0f9bc6811e6c2cb6a4d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/c0d3cdbdfbf873871167050ab077e49b1ad02ab0",
-                "reference": "c0d3cdbdfbf873871167050ab077e49b1ad02ab0",
+                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/bebacf79d8d4dae9168f0f9bc6811e6c2cb6a4d9",
+                "reference": "bebacf79d8d4dae9168f0f9bc6811e6c2cb6a4d9",
                 "shasum": ""
             },
             "require": {
@@ -679,7 +679,7 @@
                 "database",
                 "orm"
             ],
-            "time": "2014-09-22 21:58:51"
+            "time": "2014-10-06 13:22:50"
         },
         {
             "name": "elasticsearch/elasticsearch",
@@ -1271,6 +1271,54 @@
             "time": "2013-07-15 12:02:24"
         },
         {
+            "name": "keboola/php-temp",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/php-temp.git",
+                "reference": "ba7951bc813228d4b580872be966a39262c4f933"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/php-temp/zipball/ba7951bc813228d4b580872be966a39262c4f933",
+                "reference": "ba7951bc813228d4b580872be966a39262c4f933",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3",
+                "symfony/symfony": ">2.1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Keboola\\Temp": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Miro Cillik",
+                    "email": "miro@keboola.cz"
+                },
+                {
+                    "name": "Ondrej Vana",
+                    "email": "kachna@keboola.cz"
+                }
+            ],
+            "description": "Temp service - handles application's temporary files",
+            "keywords": [
+                "filesystem",
+                "temp"
+            ],
+            "time": "2014-09-30 02:21:07"
+        },
+        {
             "name": "keboola/storage-api-client",
             "version": "2.11.20",
             "source": {
@@ -1312,16 +1360,16 @@
         },
         {
             "name": "keboola/syrup",
-            "version": "1.5.3",
+            "version": "1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup.git",
-                "reference": "7a684814855bb60b968e29559b1776d4fde27390"
+                "reference": "9e2819b21a4f0d7bed6fc2d884b818cf5e63d9e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup/zipball/7a684814855bb60b968e29559b1776d4fde27390",
-                "reference": "7a684814855bb60b968e29559b1776d4fde27390",
+                "url": "https://api.github.com/repos/keboola/syrup/zipball/9e2819b21a4f0d7bed6fc2d884b818cf5e63d9e0",
+                "reference": "9e2819b21a4f0d7bed6fc2d884b818cf5e63d9e0",
                 "shasum": ""
             },
             "require": {
@@ -1352,7 +1400,7 @@
                 "MIT"
             ],
             "description": "Syrup - Concentrated extract(or)s",
-            "time": "2014-09-24 19:03:16"
+            "time": "2014-10-07 13:45:18"
         },
         {
             "name": "kriswallsmith/assetic",
@@ -1786,20 +1834,20 @@
         },
         {
             "name": "swiftmailer/swiftmailer",
-            "version": "v5.2.2",
+            "version": "v5.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swiftmailer/swiftmailer.git",
-                "reference": "e02f71a35436af4bd58a1bd90116089e632e29e1"
+                "reference": "b86b927dfefdb56ab0b22d1350033d9a38e9f205"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/e02f71a35436af4bd58a1bd90116089e632e29e1",
-                "reference": "e02f71a35436af4bd58a1bd90116089e632e29e1",
+                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/b86b927dfefdb56ab0b22d1350033d9a38e9f205",
+                "reference": "b86b927dfefdb56ab0b22d1350033d9a38e9f205",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.2.4"
+                "php": ">=5.3.3"
             },
             "require-dev": {
                 "mockery/mockery": "~0.9.1"
@@ -1807,7 +1855,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.2-dev"
+                    "dev-master": "5.3-dev"
                 }
             },
             "autoload": {
@@ -1834,7 +1882,7 @@
                 "mail",
                 "mailer"
             ],
-            "time": "2014-09-20 07:17:36"
+            "time": "2014-10-04 05:53:18"
         },
         {
             "name": "symfony/assetic-bundle",
@@ -2178,17 +2226,17 @@
         },
         {
             "name": "syrup/component-bundle",
-            "version": "1.9.0",
+            "version": "1.9.9",
             "target-dir": "Syrup/ComponentBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup-component-bundle.git",
-                "reference": "a7a0c1008fb37760cd65e35934e229000a2ee5f7"
+                "reference": "0dc1330c5be7d0725e5a8cd014c4e7fa818d044a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/a7a0c1008fb37760cd65e35934e229000a2ee5f7",
-                "reference": "a7a0c1008fb37760cd65e35934e229000a2ee5f7",
+                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/0dc1330c5be7d0725e5a8cd014c4e7fa818d044a",
+                "reference": "0dc1330c5be7d0725e5a8cd014c4e7fa818d044a",
                 "shasum": ""
             },
             "require": {
@@ -2197,8 +2245,9 @@
                 "guzzle/guzzle": ">=3.0.0",
                 "keboola/csv": "1.1.*",
                 "keboola/php-encryption": "~0.2.0",
+                "keboola/php-temp": ">=0.1.0",
                 "keboola/storage-api-client": "~2.11.0",
-                "keboola/syrup": "~1.5.3",
+                "keboola/syrup": "~1.6.0",
                 "php": ">=5.3.5",
                 "pimple/pimple": "2.0.*",
                 "sensio/generator-bundle": "~2.3"
@@ -2230,7 +2279,7 @@
                 }
             ],
             "description": "Syrup ComponentBundle",
-            "time": "2014-09-29 14:49:39"
+            "time": "2014-10-08 09:55:14"
         },
         {
             "name": "twig/twig",
@@ -2661,6 +2710,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": [],
+    "prefer-stable": false,
     "platform": {
         "php": ">=5.4.0"
     },

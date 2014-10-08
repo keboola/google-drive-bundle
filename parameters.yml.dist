@@ -1,47 +1,6 @@
 parameters:
     app_name:          google-drive-bundle
 
-    database_driver:   pdo_mysql
-    database_host:     localhost
-    database_port:     ~
-    database_name:     symfony
-    database_user:     root
-    database_password: ~
-
-    pdo.db_options:
-        db_table:    session
-        db_id_col:   id
-        db_data_col: value
-        db_time_col: time
-
-    mailer_transport:  smtp
-    mailer_host:       localhost
-    mailer_user:       ~
-    mailer_password:   ~
-
-    locale:            en
-    secret:            thisIsSecretHashBleeWieasalsfhlaf
-
-    kernel.trusted_hosts:  ~
-
-
-    storage_api.test.token:
-    storage_api.test.url:    https://connection.keboola.com
-    storage_api.url:         https://connection.keboola.com/
-
-    shared_sapi.url:   https://connection.keboola.com
-    shared_sapi.token:
-
-    google.client-id:
-    google.client-secret:
-
-    uploader:
-        aws-access-key:
-        aws-secret-key:
-        s3-upload-path:
-        bitly-login:
-        bitly-api-key:
-
 	queue:
         url:
         db_table: queues
