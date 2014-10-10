@@ -8,13 +8,13 @@
 namespace Keboola\Google\DriveBundle\Exception;
 
 
-use Syrup\ComponentBundle\Exception\SyrupComponentException;
+use Syrup\ComponentBundle\Exception\UserException;
 
-class ConfigurationException extends SyrupComponentException
+class ConfigurationException extends UserException
 {
-	public function __construct($message)
+	public function __construct($message, $previous = null)
 	{
-		parent::__construct(400, "Wrong configuration: " . $message);
+		parent::__construct("Wrong configuration: " . $message, $previous);
 	}
 
-} 
+}
