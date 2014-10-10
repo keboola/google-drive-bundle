@@ -63,6 +63,19 @@ class RestApi
 		return $response;
 	}
 
+	public function getFiles($mimeType='application/vnd.google-apps.spreadsheet')
+	{
+		$request = $this->api->request(
+			self::FILES,
+			'get',
+			array('Accept'  => 'application/json')
+		);
+		$request->getQuery()->set('q', "mimeType='".$mimeType."'");
+		$response = $request->send();
+
+		return $response;
+	}
+
 	public function shareFile($googleId, $email)
 	{
 		$result = $this->api->call(self::FILES . '/' . $googleId . '/permissions', array(

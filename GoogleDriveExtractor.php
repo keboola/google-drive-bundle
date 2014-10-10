@@ -175,12 +175,7 @@ class GoogleDriveExtractor extends Component
 		$googleDriveApi = $this->getApi($account);
 
 		/** @var Response $response */
-		$response = null;
-		if (isset($params['mimeType'])) {
-			$response = $googleDriveApi->getFilesByOwner($account->getEmail(), $params['mimeType']);
-		} else {
-			$response = $googleDriveApi->getFilesByOwner($account->getEmail());
-		}
+		$response = $googleDriveApi->getFiles();
 
 		return $response->json();
 	}
