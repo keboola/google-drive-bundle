@@ -2226,17 +2226,17 @@
         },
         {
             "name": "syrup/component-bundle",
-            "version": "1.9.11",
+            "version": "1.9.12",
             "target-dir": "Syrup/ComponentBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup-component-bundle.git",
-                "reference": "7a8c46109a6b80e3e6630d1206b123a35c630eb5"
+                "reference": "dff563432da27ea1bce86330949faaf39d3c51e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/7a8c46109a6b80e3e6630d1206b123a35c630eb5",
-                "reference": "7a8c46109a6b80e3e6630d1206b123a35c630eb5",
+                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/dff563432da27ea1bce86330949faaf39d3c51e7",
+                "reference": "dff563432da27ea1bce86330949faaf39d3c51e7",
                 "shasum": ""
             },
             "require": {
@@ -2279,20 +2279,20 @@
                 }
             ],
             "description": "Syrup ComponentBundle",
-            "time": "2014-10-10 12:25:06"
+            "time": "2014-10-10 14:17:33"
         },
         {
             "name": "twig/twig",
-            "version": "v1.16.0",
+            "version": "v1.16.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fabpot/Twig.git",
-                "reference": "8ce37115802e257a984a82d38254884085060024"
+                "reference": "7c4c01dcf578523cfcddf383641a4f12790270ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Twig/zipball/8ce37115802e257a984a82d38254884085060024",
-                "reference": "8ce37115802e257a984a82d38254884085060024",
+                "url": "https://api.github.com/repos/fabpot/Twig/zipball/7c4c01dcf578523cfcddf383641a4f12790270ec",
+                "reference": "7c4c01dcf578523cfcddf383641a4f12790270ec",
                 "shasum": ""
             },
             "require": {
@@ -2336,7 +2336,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2014-07-05 12:19:05"
+            "time": "2014-10-10 14:09:53"
         }
     ],
     "packages-dev": [
