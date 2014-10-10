@@ -1175,12 +1175,12 @@
         },
         {
             "name": "keboola/google-client-bundle",
-            "version": "1.1.5",
+            "version": "1.1.6",
             "target-dir": "Keboola/Google/ClientBundle",
             "source": {
                 "type": "git",
                 "url": "git@bitbucket.org:keboola/google-client-bundle.git",
-                "reference": "30ffd4b247596b946e0ebd7f0a3539f28c03f3d4"
+                "reference": "d1581095c7ac8142821af22ccb40e261abe0c7b5"
             },
             "require": {
                 "php": ">=5.3.5"
@@ -1221,7 +1221,7 @@
                 }
             ],
             "description": "Keboola Google API Client",
-            "time": "2014-09-30 11:30:53"
+            "time": "2014-10-10 11:47:35"
         },
         {
             "name": "keboola/php-encryption",
@@ -2226,28 +2226,28 @@
         },
         {
             "name": "syrup/component-bundle",
-            "version": "1.9.10",
+            "version": "1.9.11",
             "target-dir": "Syrup/ComponentBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup-component-bundle.git",
-                "reference": "29bb173dd819833bc6eb47b8625eef5b248fef28"
+                "reference": "7a8c46109a6b80e3e6630d1206b123a35c630eb5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/29bb173dd819833bc6eb47b8625eef5b248fef28",
-                "reference": "29bb173dd819833bc6eb47b8625eef5b248fef28",
+                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/7a8c46109a6b80e3e6630d1206b123a35c630eb5",
+                "reference": "7a8c46109a6b80e3e6630d1206b123a35c630eb5",
                 "shasum": ""
             },
             "require": {
-                "aws/aws-sdk-php": "2.*",
+                "aws/aws-sdk-php": "2.6.*",
                 "elasticsearch/elasticsearch": "~1.0",
                 "guzzle/guzzle": ">=3.0.0",
                 "keboola/csv": "1.1.*",
                 "keboola/php-encryption": "~0.2.0",
                 "keboola/php-temp": ">=0.1.0",
                 "keboola/storage-api-client": "~2.11.0",
-                "keboola/syrup": "~1.6.0",
+                "keboola/syrup": "~1.6.4",
                 "php": ">=5.3.5",
                 "pimple/pimple": "2.0.*",
                 "sensio/generator-bundle": "~2.3"
@@ -2279,7 +2279,7 @@
                 }
             ],
             "description": "Syrup ComponentBundle",
-            "time": "2014-10-09 13:19:15"
+            "time": "2014-10-10 12:25:06"
         },
         {
             "name": "twig/twig",
