@@ -13,6 +13,7 @@ use Keboola\Google\DriveBundle\GoogleDriveExtractor;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Syrup\ComponentBundle\Controller\ApiController;
+use Syrup\ComponentBundle\Exception\UserException;
 
 class GoogleDriveController extends ApiController
 {
@@ -85,7 +86,13 @@ class GoogleDriveController extends ApiController
 
 	public function getAccountAction($id)
 	{
-		return $this->getJsonResponse($this->getComponent()->getAccount($id));
+		$account = $this->getComponent()->getAccount($id);
+
+		if ($account == null) {
+			throw new UserException(sprintf('Account %s not found', $id));
+		}
+
+		return $this->getJsonResponse($account);
 	}
 
 	public function getAccountsAction()

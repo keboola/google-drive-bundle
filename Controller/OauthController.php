@@ -28,38 +28,7 @@ use Syrup\ComponentBundle\Exception\UserException;
 
 class OauthController extends BaseController
 {
-	/**
-	 * @var AttributeBag
-	 */
-	protected $sessionBag;
-
-	private $sessionTimeout = 1200;
-
 	protected $componentName = 'ex-google-drive';
-
-	/**
-	 * Init OAuth session bag
-	 *
-	 * @return AttributeBag
-	 */
-	private function initSessionBag()
-	{
-
-		/** @var Session $session */
-		$session = $this->container->get('session');
-
-		try {
-			$this->sessionBag = $session->getBag('googledrive');
-		} catch (InvalidArgumentException $e) {
-			$bag = new AttributeBag('_ex_google_drive');
-			$bag->setName('googledrive');
-			$session->registerBag($bag);
-
-			$this->sessionBag = $session->getBag('googledrive');
-		}
-
-		return $this->sessionBag;
-	}
 
 	/**
 	 * @return RestApi

@@ -200,13 +200,15 @@ class Account extends Table
 	{
 		$origSheet = $this->getSheet($sheet->getGoogleId(), $sheet->getSheetId());
 		if (null == $origSheet) {
+
 			$sheet->setAccount($this);
 			$fileIds = array();
+
 			/** @var Sheet $savedSheet */
-			foreach($this->getData() as $savedSheet) {
-				$gid = $savedSheet['googleId'];
+			foreach($this->sheets as $savedSheet) {
+				$gid = $savedSheet->getGoogleId();
 				if (!isset($fileIds[$gid])) {
-					$fileIds[$gid] = $savedSheet['fileId'];
+					$fileIds[$gid] = $savedSheet->getFileId();
 				}
 			}
 
@@ -233,7 +235,6 @@ class Account extends Table
 			}
 		} else {
 			// Update Sheet
-
 			$this->removeSheet($origSheet->getFileId(), $origSheet->getSheetId());
 			$origSheet->fromArray($sheet->toArray());
 			$sheet = $origSheet;
