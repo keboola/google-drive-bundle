@@ -52,28 +52,22 @@ class RestApi
 
 	public function getFilesByOwner($userEmail, $mimeType='application/vnd.google-apps.spreadsheet')
 	{
-		$request = $this->api->request(
+		return $this->api->request(
 			self::FILES,
-			'get',
-			array('Accept'  => 'application/json')
+			'GET',
+			['Accept'  => 'application/json'],
+			['q'    => "'" . $userEmail . "' in owners and mimeType='".$mimeType."'"]
 		);
-		$request->getQuery()->set('q', "'" . $userEmail . "' in owners and mimeType='".$mimeType."'");
-		$response = $request->send();
-
-		return $response;
 	}
 
 	public function getFiles($mimeType='application/vnd.google-apps.spreadsheet')
 	{
-		$request = $this->api->request(
+		return $this->api->request(
 			self::FILES,
-			'get',
-			array('Accept'  => 'application/json')
+			'GET',
+			['Accept' => 'application/json'],
+			['q' =>  "mimeType='".$mimeType."'"]
 		);
-		$request->getQuery()->set('q', "mimeType='".$mimeType."'");
-		$response = $request->send();
-
-		return $response;
 	}
 
 	public function shareFile($googleId, $email)
@@ -142,6 +136,8 @@ class RestApi
 				return str_replace('gid=', '', $paramArr[0]);
 			}
 		}
+
+		return null;
 	}
 
 	public function getFile($googleId)
