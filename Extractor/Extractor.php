@@ -8,6 +8,7 @@
 
 namespace Keboola\Google\DriveBundle\Extractor;
 
+use GuzzleHttp\Exception\RequestException;
 use Keboola\Google\DriveBundle\Entity\Account;
 use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Exception\ConfigurationException;
@@ -78,7 +79,17 @@ class Extractor
 			/** @var Sheet $sheet */
 			foreach ($account->getSheets() as $sheet) {
 
-				$meta = $this->driveApi->getFile($sheet->getGoogleId());
+				try {
+					$meta = $this->driveApi->getFile($sheet->getGoogleId());
+				} catch (RequestException $e) {
+					if ($e->getResponse()->getStatusCode() == 404) {
+						throw new UserException("File not found.", $e);
+					} else if ($e->getResponse()->getStatusCode() < 500) {
+						throw new UserException($e->getResponse()->getBody(), $e);
+					} else {
+						throw new ApplicationException($e->getResponse()->getBody(), $e);
+					}
+				}
 
 				if (!isset($meta['exportLinks'])) {
 					$e = new ApplicationException("ExportLinks missing in file resource");
@@ -98,13 +109,18 @@ class Extractor
 					} else {
 						$status[$accountId][$sheet->getSheetTitle()] = "file is empty";
 					}
-				} catch (\Exception $e) {
-					$userException = new UserException("Error importing sheet '" . $sheet->getGoogleId() . "-".$sheet->getSheetId()."'. " . $e->getMessage(), $e);
-					$userException->setData(array(
-						'accountId' => $accountId,
-						'sheet'     => $sheet->toArray()
-					));
-					throw $userException;
+				} catch (RequestException $e) {
+					if ($e->getResponse()->getStatusCode() < 500) {
+						$userException = new UserException("Error importing sheet '" . $sheet->getGoogleId() . "-".$sheet->getSheetId()."'. " . $e->getMessage(), $e);
+						$userException->setData(array(
+							'response'  => $e->getResponse()->getBody(),
+							'accountId' => $accountId,
+							'sheet'     => $sheet->toArray()
+						));
+						throw $userException;
+					} else {
+						throw new ApplicationException($e->getResponse()->getBody(), $e);
+					}
 				}
 			}
 		}
