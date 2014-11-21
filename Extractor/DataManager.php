@@ -47,7 +47,7 @@ class DataManager
 
 	protected function writeRawCsv($data, Sheet $sheet)
 	{
-		$fileName = str_replace(' ', '-', $sheet->getTitle()) . "_" . $sheet->getSheetId() . "_" . date('Y-m-d') . '-' . uniqid() . ".csv";
+		$fileName = $sheet->getGoogleId() . "_" . $sheet->getSheetId() . "_" . date('Y-m-d') . '-' . uniqid() . ".csv";
 
 		/** @var SplFileInfo $fileInfo */
 		$fileInfo = $this->temp->createFile($fileName);
