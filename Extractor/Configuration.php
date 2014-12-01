@@ -16,6 +16,7 @@ use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\StorageApi\Client as StorageApi;
 use Keboola\StorageApi\Config\Reader;
 use Keboola\StorageApi\Table;
+use Syrup\ComponentBundle\Exception\UserException;
 
 class Configuration
 {
@@ -77,10 +78,19 @@ class Configuration
 		return $this->storageApi->bucketExists($this->getSysBucketId());
 	}
 
-	public function initDataBucket($accountId)
+	public function initDataBucket($tableId)
 	{
-		if (!$this->storageApi->bucketExists(self::IN_PREFIX . $this->componentName . '-' . $accountId)) {
-			$this->storageApi->createBucket($this->componentName . '-' . $accountId, 'in', 'Google Drive Account bucket');
+		$tableArr = explode('.', $tableId);
+
+		if (strtolower($tableArr[0]) != 'in') {
+			throw new UserException("Extractor can only import to 'IN' stage bucket");
+		}
+
+		$bucketId = $tableArr[0] . '.' . $tableArr[1];
+
+		if (!$this->storageApi->bucketExists($bucketId)) {
+			$bucketName = str_replace('c-', '', $tableArr[1]);
+			$this->storageApi->createBucket($bucketName, 'in', 'Google Drive data bucket');
 		}
 	}
 

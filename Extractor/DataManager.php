@@ -8,11 +8,15 @@
 
 namespace Keboola\Google\DriveBundle\Extractor;
 
+use GuzzleHttp\Exception\RequestException;
 use Keboola\Csv\CsvFile;
 use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Table;
 use SplFileInfo;
+use Syrup\ComponentBundle\Exception\ApplicationException;
+use Syrup\ComponentBundle\Exception\UserException;
 use Syrup\ComponentBundle\Filesystem\Temp;
 
 class DataManager
@@ -37,10 +41,24 @@ class DataManager
 		$dataProcessor = new DataProcessor($tmpFilename, $sheetConfig);
 		$outFilename = $dataProcessor->process();
 
-		$this->configuration->initDataBucket($sheet->getAccount()->getAccountId());
+		$this->configuration->initDataBucket($sheetConfig['db']['table']);
 
 		$table = new Table($this->configuration->getStorageApi(), $sheetConfig['db']['table'], $outFilename);
-		$table->save(true);
+
+		try {
+			$table->save(true);
+		} catch (ClientException $e) {
+
+			$previous = $e->getPrevious();
+
+			if ($previous instanceof RequestException) {
+				if ($previous->getResponse()->getStatusCode() < 500) {
+					throw new UserException($e->getMessage(), $e);
+				}
+			}
+
+			throw new ApplicationException("Error while saving data to input table", $e);
+		}
 
 		unlink($tmpFilename);
 	}
