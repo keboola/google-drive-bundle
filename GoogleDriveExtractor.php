@@ -33,7 +33,7 @@ class GoogleDriveExtractor extends Component
 	/**
 	 * @return Configuration
 	 */
-	protected function getConfiguration()
+	public function getConfiguration()
 	{
 		if ($this->configuration == null) {
 			$this->configuration = $this->container->get('ex_google_drive.configuration');

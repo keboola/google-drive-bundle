@@ -152,6 +152,28 @@ class Account extends Table
 		}
 	}
 
+	public function setOwner($owner)
+	{
+		$this->setAttribute('owner', $owner);
+
+		return $this;
+	}
+
+	public function getOwner()
+	{
+		return $this->getAttribute('owner');
+	}
+
+	public function setExternal($bool)
+	{
+		$this->setAttribute('external', (int) $bool);
+	}
+
+	public function isExternal()
+	{
+		return (bool) $this->getAttribute('external');
+	}
+
 	/**
 	 * Set sheets from array of Sheet objects
 	 *

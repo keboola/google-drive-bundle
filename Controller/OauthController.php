@@ -126,6 +126,7 @@ class OauthController extends BaseController
 				'url'   => null,
 				'userAgent' => $this->componentName
 			]);
+			$tokenData = $storageApi->verifyToken();
 
 			/** @var EncryptorInterface $encryptor */
 			$encryptor = $this->get('syrup.encryptor');
@@ -152,7 +153,13 @@ class OauthController extends BaseController
 				->setEmail($userData['email'])
 				->setAccessToken($tokens['access_token'])
 				->setRefreshToken($tokens['refresh_token'])
+				->setOwner($tokenData['description'])
 			;
+
+			if ($account->isExternal()) {
+				$account->setOwner($tokenData['creatorToken']['description']);
+			}
+
 			$account->save();
 
 			$this->container->get('session')->clear();

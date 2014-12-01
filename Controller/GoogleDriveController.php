@@ -8,6 +8,7 @@
 namespace Keboola\Google\DriveBundle\Controller;
 
 
+use Keboola\Google\DriveBundle\Entity\Account;
 use Keboola\Google\DriveBundle\Exception\ParameterMissingException;
 use Keboola\Google\DriveBundle\GoogleDriveExtractor;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -40,6 +41,11 @@ class GoogleDriveController extends ApiController
 		if (!isset($post['referrer'])) {
 			throw new ParameterMissingException("Parameter 'referrer' is required");
 		}
+
+		/** @var Account $account */
+		$account = $this->getComponent()->getConfiguration()->getAccountBy('accountId', $post['account']);
+		$account->setExternal(true);
+		$account->save();
 
 		$token = $this->getComponent()->getToken();
 
