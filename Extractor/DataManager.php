@@ -48,16 +48,7 @@ class DataManager
 		try {
 			$table->save(true);
 		} catch (ClientException $e) {
-
-			$previous = $e->getPrevious();
-
-			if ($previous instanceof RequestException) {
-				if ($previous->getResponse()->getStatusCode() < 500) {
-					throw new UserException($e->getMessage(), $e);
-				}
-			}
-
-			throw new ApplicationException("Error while saving data to input table", $e);
+			throw new UserException($e->getMessage(), $e);
 		}
 
 		unlink($tmpFilename);
