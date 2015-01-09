@@ -157,7 +157,12 @@ class OauthController extends BaseController
 			;
 
 			if ($account->isExternal()) {
-				$account->setOwner($tokenData['creatorToken']['description']);
+				if ($userData['email'] == $tokenData['description'] || !isset($tokenData['creatorToken'])) {
+					// user generated an external link for himself or is reauthorizing himself into his config which was external before
+					$account->setExternal(false);
+				} else {
+					$account->setOwner($tokenData['creatorToken']['description']);
+				}
 			}
 
 			$account->save();

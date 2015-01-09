@@ -187,7 +187,6 @@ class GoogleDriveExtractor extends Component
 	/**
 	 * @param $accountId
 	 * @param $fileId
-	 * @internal param $params
 	 * @return array
 	 */
 	public function getSheets($accountId, $fileId)
