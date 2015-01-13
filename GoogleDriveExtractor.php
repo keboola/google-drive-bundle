@@ -18,6 +18,7 @@ use Keboola\Google\DriveBundle\Extractor\Extractor;
 use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
 use Keboola\StorageApi\Client;
 use Syrup\ComponentBundle\Component\Component;
+use Syrup\ComponentBundle\Exception\UserException;
 
 class GoogleDriveExtractor extends Component
 {
@@ -171,6 +172,10 @@ class GoogleDriveExtractor extends Component
 	{
 		/** @var Account $account */
 		$account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
+
+		if (null == $account) {
+			throw new UserException(sprintf("Account '%s' doesn't exist", $accountId));
+		}
 
 		$googleDriveApi = $this->getApi($account);
 
