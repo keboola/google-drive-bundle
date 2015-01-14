@@ -60,13 +60,16 @@ class RestApi
 		);
 	}
 
-	public function getFiles($mimeType='application/vnd.google-apps.spreadsheet')
+	public function getFiles($pageToken = null, $mimeType = 'application/vnd.google-apps.spreadsheet')
 	{
 		return $this->api->request(
 			self::FILES,
 			'GET',
 			['Accept' => 'application/json'],
-			['q' =>  "mimeType='".$mimeType."'"]
+			[
+				'pageToken' => $pageToken,
+				'q'         => "mimeType='".$mimeType."'"
+			]
 		);
 	}
 

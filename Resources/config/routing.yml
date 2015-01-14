@@ -58,8 +58,8 @@ keboola_google_drive_post_account:
 
 # Files
 keboola_google_drive_get_files:
-    path: /files/{accountId}
-    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:getFiles }
+    path: /files/{accountId}/{pageToken}
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:getFiles, pageToken: null }
     methods:  [GET]
 
 # Sheets

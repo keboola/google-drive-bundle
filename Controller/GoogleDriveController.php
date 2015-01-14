@@ -109,9 +109,9 @@ class GoogleDriveController extends ApiController
 
 	/** Files */
 
-	public function getFilesAction($accountId)
+	public function getFilesAction($accountId, $pageToken = null)
 	{
-		return $this->getJsonResponse($this->getComponent()->getFiles($accountId));
+		return $this->getJsonResponse($this->getComponent()->getFiles($accountId, $pageToken));
 	}
 
 

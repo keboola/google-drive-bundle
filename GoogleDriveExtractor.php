@@ -168,7 +168,7 @@ class GoogleDriveExtractor extends Component
 		return $account->toArray();
 	}
 
-	public function getFiles($accountId)
+	public function getFiles($accountId, $pageToken = null)
 	{
 		/** @var Account $account */
 		$account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
@@ -180,7 +180,7 @@ class GoogleDriveExtractor extends Component
 		$googleDriveApi = $this->getApi($account);
 
 		/** @var Response $response */
-		$response = $googleDriveApi->getFiles();
+		$response = $googleDriveApi->getFiles($pageToken);
 
 		return $response->json();
 	}
