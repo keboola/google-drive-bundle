@@ -72,12 +72,14 @@ class Extractor
 		foreach ($accounts as $accountId => $account) {
 
 			$this->currAccountId = $accountId;
+			$status = array();
 
 			$this->driveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
 			$this->driveApi->getApi()->setRefreshTokenCallback(array($this, 'refreshTokenCallback'));
 
 			/** @var Sheet $sheet */
 			foreach ($account->getSheets() as $sheet) {
+				$this->logger->info('Importing sheet ' . $sheet->getSheetTitle());
 
 				try {
 					$meta = $this->driveApi->getFile($sheet->getGoogleId());
@@ -126,7 +128,8 @@ class Extractor
 		}
 
 		return array(
-			"status"    => "ok"
+			"status"    => "ok",
+			"sheets" => $status,
 		);
 	}
 
