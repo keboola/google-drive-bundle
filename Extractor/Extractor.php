@@ -68,11 +68,12 @@ class Extractor
 			);
 		}
 
+		$status = array();
+
 		/** @var Account $account */
 		foreach ($accounts as $accountId => $account) {
 
 			$this->currAccountId = $accountId;
-			$status = array();
 
 			$this->driveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
 			$this->driveApi->getApi()->setRefreshTokenCallback(array($this, 'refreshTokenCallback'));
@@ -128,7 +129,7 @@ class Extractor
 		}
 
 		return array(
-			"status"    => "ok",
+			"status" => "ok",
 			"sheets" => $status,
 		);
 	}
