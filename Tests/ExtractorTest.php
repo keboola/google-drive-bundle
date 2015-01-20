@@ -80,9 +80,10 @@ class ExtractorTest extends WebTestCase
 
 		// Cleanup
 		$sysBucketId = $this->configuration->getSysBucketId();
-		$accTables = $this->storageApi->listTables($sysBucketId);
-		foreach ($accTables as $table) {
-			$this->storageApi->dropTable($table['id']);
+		$tableId = $sysBucketId . '.' . $this->accountId;
+
+		if ($this->storageApi->tableExists($tableId)) {
+			$this->storageApi->dropTable($tableId);
 		}
 	}
 
@@ -123,11 +124,6 @@ class ExtractorTest extends WebTestCase
 		$this->assertEquals($this->refreshToken, $account->getRefreshToken());
 	}
 
-	protected function assertSheet(Sheet $sheet)
-	{
-
-	}
-
 	/**
 	 * Config
 	 */
@@ -161,8 +157,15 @@ class ExtractorTest extends WebTestCase
 		$responseJson = self::$client->getResponse()->getContent();
 		$response = json_decode($responseJson, true);
 
-		$this->assertEquals('test', $response[0]['id']);
-		$this->assertEquals('Test', $response[0]['name']);
+		$testConfig = [];
+		foreach ($response as $config) {
+			if ($config['id'] == $this->accountId) {
+				$testConfig = $config;
+			}
+		}
+
+		$this->assertEquals('test', $testConfig['id']);
+		$this->assertEquals('Test', $testConfig['name']);
 	}
 
 	public function testDeleteConfig()
@@ -177,7 +180,7 @@ class ExtractorTest extends WebTestCase
 		$accounts = $this->configuration->getAccounts(true);
 
 		$this->assertEquals(204, $response->getStatusCode());
-		$this->assertEmpty($accounts);
+		$this->assertArrayNotHasKey($this->accountId, $accounts);
 	}
 
 	/**
@@ -230,8 +233,6 @@ class ExtractorTest extends WebTestCase
 		$sheets = $account->getSheets();
 
 		$this->assertNotEmpty($sheets);
-
-		$this->assertSheet(array_shift($sheets));
 	}
 
 	/**
