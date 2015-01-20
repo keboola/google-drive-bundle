@@ -68,6 +68,15 @@ class Extractor
 			);
 		}
 
+		if (isset($options['sheetId'])) {
+			if (!isset($options['config']) && !isset($options['account'])) {
+				throw new UserException("Missing parameter 'config'");
+			}
+			if (!isset($options['googleId'])) {
+				throw new UserException("Missing parameter 'googleId'");
+			}
+		}
+
 		$status = array();
 
 		/** @var Account $account */
@@ -78,8 +87,13 @@ class Extractor
 			$this->driveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
 			$this->driveApi->getApi()->setRefreshTokenCallback(array($this, 'refreshTokenCallback'));
 
+			$sheets = $account->getSheets();
+			if (isset($options['sheetId'])) {
+				$sheets = [$account->getSheet($options['googleId'], $options['sheetId'])];
+			}
+
 			/** @var Sheet $sheet */
-			foreach ($account->getSheets() as $sheet) {
+			foreach ($sheets as $sheet) {
 				$this->logger->info('Importing sheet ' . $sheet->getSheetTitle());
 
 				try {
