@@ -217,6 +217,10 @@ class GoogleDriveExtractor extends Component
 	{
 		$account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
 
+		if ($account == null) {
+			throw new UserException("Account '$accountId' not found");
+		}
+
 		if (!isset($params['data'])) {
 			throw new ParameterMissingException("missing parameter data");
 		}
@@ -233,7 +237,7 @@ class GoogleDriveExtractor extends Component
 		}
 		$account->save();
 
-		return array('status'   => 'ok');
+		return $account->getData();
 	}
 
 	/**

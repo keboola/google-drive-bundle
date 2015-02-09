@@ -224,10 +224,7 @@ class ExtractorTest extends WebTestCase
 			))
 		);
 
-		$responseJson = self::$client->getResponse()->getContent();
-		$response = json_decode($responseJson, true);
-
-		$this->assertEquals('ok', $response['status']);
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
 
 		$account = $this->configuration->getAccountBy('accountId', $this->accountId);
 		$sheets = $account->getSheets();
