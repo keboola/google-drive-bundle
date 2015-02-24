@@ -104,7 +104,12 @@ class Extractor
 					} else if ($e->getResponse()->getStatusCode() < 500) {
 						throw new UserException($e->getResponse()->getBody(), $e);
 					} else {
-						throw new ApplicationException($e->getResponse()->getBody(), $e);
+                        $applicationException = new ApplicationException($e->getResponse()->getReasonPhrase(), $e);
+                        $applicationException->setData([
+                            'body'  => substr($e->getResponse()->getBody(), 0, 300),
+                            'statusCode' => $e->getResponse()->getStatusCode()
+                        ]);
+						throw $applicationException;
 					}
 				}
 
