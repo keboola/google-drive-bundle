@@ -101,17 +101,24 @@ class Extractor
 				} catch (RequestException $e) {
 					if ($e->getResponse()->getStatusCode() == 404) {
 						throw new UserException("File not found.", $e);
-					} else if ($e->getResponse()->getStatusCode() < 500) {
-						throw new UserException($e->getResponse()->getBody(), $e);
 					} else {
-                        $applicationException = new ApplicationException($e->getResponse()->getReasonPhrase(), $e);
-                        $applicationException->setData([
-                            'body'  => substr($e->getResponse()->getBody(), 0, 300),
-                            'statusCode' => $e->getResponse()->getStatusCode()
-                        ]);
-						throw $applicationException;
+                        $userException = new UserException("Error importing file - sheet: '" . $sheet->getTitle() . " - ".$sheet->getSheetTitle()."'. ", $e);
+                        $userException->setData(array(
+                            'message' => $e->getMessage(),
+                            'reason' => $e->getResponse()->getReasonPhrase(),
+                            'body' => substr($e->getResponse()->getBody(), 0, 300),
+                            'account' => $accountId,
+                            'sheet' => $sheet->toArray()
+                        ));
+                        throw $userException;
 					}
-				}
+				} catch (\Exception $e) {
+                    $applicationException = new ApplicationException("Unknown error", $e);
+                    $applicationException->setData([
+                        'account' => $this->currAccountId,
+                        'sheet' => $sheet->getSheetId()
+                    ]);
+                }
 
 				if (!isset($meta['exportLinks'])) {
 					$e = new ApplicationException("ExportLinks missing in file resource");
@@ -132,18 +139,22 @@ class Extractor
 						$status[$accountId][$sheet->getSheetTitle()] = "file is empty";
 					}
 				} catch (RequestException $e) {
-					if ($e->getResponse()->getStatusCode() < 500) {
-						$userException = new UserException("Error importing sheet '" . $sheet->getGoogleId() . "-".$sheet->getSheetId()."'. " . $e->getMessage(), $e);
-						$userException->setData(array(
-							'response'  => $e->getResponse()->getBody(),
-							'accountId' => $accountId,
-							'sheet'     => $sheet->toArray()
-						));
-						throw $userException;
-					} else {
-						throw new ApplicationException($e->getResponse()->getBody(), $e);
-					}
-				}
+                    $userException = new UserException("Error importing file - sheet: '" . $sheet->getTitle() . " - ".$sheet->getSheetTitle()."'. ", $e);
+                    $userException->setData(array(
+                        'message' => $e->getMessage(),
+                        'reason' => $e->getResponse()->getReasonPhrase(),
+                        'body' => substr($e->getResponse()->getBody(), 0, 300),
+                        'account' => $accountId,
+                        'sheet' => $sheet->toArray()
+                    ));
+                    throw $userException;
+				} catch (\Exception $e) {
+                    $applicationException = new ApplicationException("Unknown error", $e);
+                    $applicationException->setData([
+                        'account' => $this->currAccountId,
+                        'sheet' => $sheet->getSheetId()
+                    ]);
+                }
 			}
 		}
 
