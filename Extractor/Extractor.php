@@ -100,13 +100,12 @@ class Extractor
 					$meta = $this->driveApi->getFile($sheet->getGoogleId());
 				} catch (RequestException $e) {
 					if ($e->getResponse()->getStatusCode() == 404) {
-						throw new UserException("File not found.", $e);
+						throw new UserException("File not found in Google Drive", $e);
 					} else {
                         $userException = new UserException("Error importing file - sheet: '" . $sheet->getTitle() . " - ".$sheet->getSheetTitle()."'. ", $e);
                         $userException->setData(array(
-                            'message' => $e->getMessage(),
+                            'message' => "Google Drive Error: " . $e->getMessage(),
                             'reason' => $e->getResponse()->getReasonPhrase(),
-                            'body' => substr($e->getResponse()->getBody(), 0, 300),
                             'account' => $accountId,
                             'sheet' => $sheet->toArray()
                         ));
