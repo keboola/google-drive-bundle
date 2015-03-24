@@ -116,6 +116,7 @@ class Extractor
                         'account' => $this->currAccountId,
                         'sheet'   => $sheet->getSheetId()
                     ]);
+                    throw $applicationException;
                 }
 
                 if (!isset($meta['exportLinks'])) {
