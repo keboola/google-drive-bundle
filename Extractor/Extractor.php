@@ -1,7 +1,6 @@
 <?php
 /**
  * Extractor.php
- *
  * @author: Miroslav Čillík <miro@keboola.com>
  * @created: 26.6.13
  */
@@ -21,163 +20,164 @@ use Syrup\ComponentBundle\Filesystem\Temp;
 
 class Extractor
 {
-	/** @var RestApi */
-	protected $driveApi;
+    /** @var RestApi */
+    protected $driveApi;
 
-	/** @var Configuration */
-	protected $configuration;
+    /** @var Configuration */
+    protected $configuration;
 
-	/** @var DataManager */
-	protected $dataManager;
+    /** @var DataManager */
+    protected $dataManager;
 
-	protected $currAccountId;
+    protected $currAccountId;
 
-	/** @var Logger */
-	protected $logger;
+    /** @var Logger */
+    protected $logger;
 
-	/** @var Temp */
-	protected $temp;
+    /** @var Temp */
+    protected $temp;
 
-	public function __construct(RestApi $driveApi, Logger $logger, Temp $temp)
-	{
-		$this->driveApi = $driveApi;
-		$this->logger = $logger;
-		$this->temp = $temp;
-	}
+    public function __construct(RestApi $driveApi, Logger $logger, Temp $temp)
+    {
+        $this->driveApi = $driveApi;
+        $this->logger = $logger;
+        $this->temp = $temp;
+    }
 
-	public function setConfiguration(Configuration $configuration)
-	{
-		$this->configuration = $configuration;
-	}
+    public function setConfiguration(Configuration $configuration)
+    {
+        $this->configuration = $configuration;
+    }
 
-	public function run($options = null)
-	{
-		$this->dataManager = new DataManager($this->configuration, $this->temp);
+    public function run($options = null)
+    {
+        $this->dataManager = new DataManager($this->configuration, $this->temp);
 
-		$accounts = $this->configuration->getAccounts();
+        $accounts = $this->configuration->getAccounts();
 
-		if (isset($options['account']) || isset($options['config'])) {
+        if (isset($options['account']) || isset($options['config'])) {
 
-			$accountId = isset($options['account'])?$options['account']:$options['config'];
+            $accountId = isset($options['account']) ? $options['account'] : $options['config'];
 
-			if (!isset($accounts[$accountId])) {
-				throw new ConfigurationException("Account '" . $accountId . "' does not exist.");
-			}
-			$accounts = array(
-				$accountId => $accounts[$accountId]
-			);
-		}
+            if (!isset($accounts[$accountId])) {
+                throw new ConfigurationException("Account '" . $accountId . "' does not exist.");
+            }
+            $accounts = array(
+                $accountId => $accounts[$accountId]
+            );
+        }
 
-		if (isset($options['sheetId'])) {
-			if (!isset($options['config']) && !isset($options['account'])) {
-				throw new UserException("Missing parameter 'config'");
-			}
-			if (!isset($options['googleId'])) {
-				throw new UserException("Missing parameter 'googleId'");
-			}
-		}
+        if (isset($options['sheetId'])) {
+            if (!isset($options['config']) && !isset($options['account'])) {
+                throw new UserException("Missing parameter 'config'");
+            }
+            if (!isset($options['googleId'])) {
+                throw new UserException("Missing parameter 'googleId'");
+            }
+        }
 
-		$status = array();
+        $status = array();
 
-		/** @var Account $account */
-		foreach ($accounts as $accountId => $account) {
+        /** @var Account $account */
+        foreach ($accounts as $accountId => $account) {
 
-			$this->currAccountId = $accountId;
+            $this->currAccountId = $accountId;
 
-			$this->driveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
-			$this->driveApi->getApi()->setRefreshTokenCallback(array($this, 'refreshTokenCallback'));
+            $this->driveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
+            $this->driveApi->getApi()->setRefreshTokenCallback(array($this, 'refreshTokenCallback'));
 
-			$sheets = $account->getSheets();
-			if (isset($options['sheetId'])) {
-				$sheets = [$account->getSheet($options['googleId'], $options['sheetId'])];
-			}
+            $sheets = $account->getSheets();
+            if (isset($options['sheetId'])) {
+                $sheets = [$account->getSheet($options['googleId'], $options['sheetId'])];
+            }
 
-			/** @var Sheet $sheet */
-			foreach ($sheets as $sheet) {
-				$this->logger->info('Importing sheet ' . $sheet->getSheetTitle());
+            /** @var Sheet $sheet */
+            foreach ($sheets as $sheet) {
+                $this->logger->info('Importing sheet ' . $sheet->getSheetTitle());
 
-				try {
-					$meta = $this->driveApi->getFile($sheet->getGoogleId());
-				} catch (RequestException $e) {
-					if ($e->getResponse()->getStatusCode() == 404) {
-						throw new UserException("File not found in Google Drive", $e);
-					} else {
-                        $userException = new UserException("Error importing file - sheet: '" . $sheet->getTitle() . " - ".$sheet->getSheetTitle()."'. ", $e);
+                try {
+                    $meta = $this->driveApi->getFile($sheet->getGoogleId());
+                } catch (RequestException $e) {
+                    if ($e->getResponse()->getStatusCode() == 404) {
+                        throw new UserException("File not found in Google Drive", $e);
+                    } else {
+                        $userException = new UserException("Error importing file - sheet: '" . $sheet->getTitle() . " - " . $sheet->getSheetTitle() . "'. ", $e);
                         $userException->setData(array(
                             'message' => "Google Drive Error: " . $e->getMessage(),
-                            'reason' => $e->getResponse()->getReasonPhrase(),
+                            'reason'  => $e->getResponse()->getReasonPhrase(),
                             'account' => $accountId,
-                            'sheet' => $sheet->toArray()
+                            'sheet'   => $sheet->toArray()
                         ));
                         throw $userException;
-					}
-				} catch (\Exception $e) {
+                    }
+                } catch (\Exception $e) {
                     $applicationException = new ApplicationException("Unknown error", $e);
                     $applicationException->setData([
                         'account' => $this->currAccountId,
-                        'sheet' => $sheet->getSheetId()
+                        'sheet'   => $sheet->getSheetId()
                     ]);
                 }
 
-				if (!isset($meta['exportLinks'])) {
-					$e = new ApplicationException("ExportLinks missing in file resource");
-					$e->setData([
-						'fileMetadata'  => $meta
-					]);
-					throw $e;
-				}
+                if (!isset($meta['exportLinks'])) {
+                    $e = new ApplicationException("ExportLinks missing in file resource");
+                    $e->setData([
+                        'fileMetadata' => $meta
+                    ]);
+                    throw $e;
+                }
 
-				$exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
+                $exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
 
-				try {
-					$data = $this->driveApi->export($exportLink);
+                try {
+                    $data = $this->driveApi->export($exportLink);
 
-					if (!empty($data)) {
-						$this->dataManager->save($data, $sheet);
-					} else {
-						$status[$accountId][$sheet->getSheetTitle()] = "file is empty";
-					}
-				} catch (RequestException $e) {
-                    $userException = new UserException("Error importing file - sheet: '" . $sheet->getTitle() . " - ".$sheet->getSheetTitle()."'. ", $e);
+                    if (!empty($data)) {
+                        $this->dataManager->save($data, $sheet);
+                    } else {
+                        $status[$accountId][$sheet->getSheetTitle()] = "file is empty";
+                    }
+                } catch (RequestException $e) {
+                    $userException = new UserException("Error importing file - sheet: '" . $sheet->getTitle() . " - " . $sheet->getSheetTitle() . "'. ", $e);
                     $userException->setData(array(
                         'message' => $e->getMessage(),
-                        'reason' => $e->getResponse()->getReasonPhrase(),
-                        'body' => substr($e->getResponse()->getBody(), 0, 300),
+                        'reason'  => $e->getResponse()->getReasonPhrase(),
+                        'body'    => substr($e->getResponse()->getBody(), 0, 300),
                         'account' => $accountId,
-                        'sheet' => $sheet->toArray()
+                        'sheet'   => $sheet->toArray()
                     ));
                     throw $userException;
-				} catch (\Exception $e) {
+                } catch (\Exception $e) {
                     $applicationException = new ApplicationException("Unknown error", $e);
                     $applicationException->setData([
                         'account' => $this->currAccountId,
-                        'sheet' => $sheet->getSheetId()
+                        'sheet'   => $sheet->getSheetId()
                     ]);
+                    throw $applicationException;
                 }
-			}
-		}
+            }
+        }
 
-		return array(
-			"status" => "ok",
-			"sheets" => $status,
-		);
-	}
+        return array(
+            "status" => "ok",
+            "sheets" => $status,
+        );
+    }
 
-	public function setCurrAccountId($id)
-	{
-		$this->currAccountId = $id;
-	}
+    public function setCurrAccountId($id)
+    {
+        $this->currAccountId = $id;
+    }
 
-	public function getCurrAccountId()
-	{
-		return $this->currAccountId;
-	}
+    public function getCurrAccountId()
+    {
+        return $this->currAccountId;
+    }
 
-	public function refreshTokenCallback($accessToken, $refreshToken)
-	{
-		$account = $this->configuration->getAccountBy('accountId', $this->currAccountId);
-		$account->setAccessToken($accessToken);
-		$account->setRefreshToken($refreshToken);
-		$account->save();
-	}
+    public function refreshTokenCallback($accessToken, $refreshToken)
+    {
+        $account = $this->configuration->getAccountBy('accountId', $this->currAccountId);
+        $account->setAccessToken($accessToken);
+        $account->setRefreshToken($refreshToken);
+        $account->save();
+    }
 }
