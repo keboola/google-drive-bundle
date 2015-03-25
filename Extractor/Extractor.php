@@ -110,13 +110,6 @@ class Extractor
                         ));
                         throw $userException;
                     }
-                } catch (\Exception $e) {
-                    $applicationException = new ApplicationException("Unknown error", $e);
-                    $applicationException->setData([
-                        'account' => $this->currAccountId,
-                        'sheet'   => $sheet->getSheetId()
-                    ]);
-                    throw $applicationException;
                 }
 
                 if (!isset($meta['exportLinks'])) {
@@ -147,13 +140,6 @@ class Extractor
                         'sheet'   => $sheet->toArray()
                     ));
                     throw $userException;
-                } catch (\Exception $e) {
-                    $applicationException = new ApplicationException("Unknown error", $e);
-                    $applicationException->setData([
-                        'account' => $this->currAccountId,
-                        'sheet'   => $sheet->getSheetId()
-                    ]);
-                    throw $applicationException;
                 }
             }
         }
