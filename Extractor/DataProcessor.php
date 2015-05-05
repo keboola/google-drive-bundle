@@ -176,7 +176,6 @@ class DataProcessor
         $string = preg_replace("/[^A-Za-z0-9_\s]/", '', $string);
         $string = trim($string);
         $string = str_replace(' ', '_', $string);
-        $string = lcfirst($string);
 
         if (strlen($string) < 2) {
             $string = 'empty';
