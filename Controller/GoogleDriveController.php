@@ -98,6 +98,11 @@ class GoogleDriveController extends ApiController
 			throw new UserException(sprintf('Account %s not found', $id));
 		}
 
+        $account['items'] = array_map(function ($item) {
+            $item['sheetId'] = (string) $item['sheetId'];
+            return $item;
+        }, $account['items']);
+
 		return $this->getJsonResponse($account);
 	}
 
@@ -124,7 +129,14 @@ class GoogleDriveController extends ApiController
 
 	public function postSheetsAction($accountId, Request $request)
 	{
-		return $this->getJsonResponse($this->getComponent()->postSheets($accountId, $this->getPostJson($request)));
+        $sheets = $this->getComponent()->postSheets($accountId, $this->getPostJson($request));
+
+        $sheets = array_map(function ($item) {
+            $item['sheetId'] = (string) $item['sheetId'];
+            return $item;
+        }, $sheets);
+
+		return $this->getJsonResponse($sheets);
 	}
 
 	public function deleteSheetAction($accountId, $fileId, $sheetId)
