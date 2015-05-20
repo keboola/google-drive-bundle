@@ -14,6 +14,7 @@ use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Table;
 use SplFileInfo;
+use Symfony\Component\Debug\Exception\ContextErrorException;
 use Syrup\ComponentBundle\Exception\ApplicationException;
 use Syrup\ComponentBundle\Exception\UserException;
 use Syrup\ComponentBundle\Filesystem\Temp;
@@ -42,7 +43,14 @@ class DataManager
 
         $this->configuration->initDataBucket($sheetConfig['db']['table']);
 
-        $table = new Table($this->configuration->getStorageApi(), $sheetConfig['db']['table'], $outFilename);
+        $outputTable = $sheetConfig['db']['table'];
+        $tableNameArr = explode('.', $outputTable);
+
+        if (count($tableNameArr) != 3) {
+            throw new UserException(sprintf("Error in configuration. Wrong tableId format '%s'", $outputTable));
+        }
+
+        $table = new Table($this->configuration->getStorageApi(), $outputTable, $outFilename);
 
         try {
             $table->save(true);
