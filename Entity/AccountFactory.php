@@ -1,6 +1,6 @@
 <?php
 /**
- * TableFactory.php
+ * AccountFactory.php
  *
  * @author: Miroslav Čillík <miro@keboola.com>
  * @created: 27.6.13
@@ -8,9 +8,6 @@
 
 namespace Keboola\Google\DriveBundle\Entity;
 
-
-use Keboola\Encryption\EncryptorInterface;
-use Keboola\Google\DriveBundle\Entity\Account;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 
 class AccountFactory

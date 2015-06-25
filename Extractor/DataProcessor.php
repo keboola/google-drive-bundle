@@ -7,9 +7,8 @@
 
 namespace Keboola\Google\DriveBundle\Extractor;
 
-
 use Keboola\Csv\CsvFile;
-use Syrup\ComponentBundle\Utility\Utility;
+use Keboola\Syrup\Utility\Utility;
 
 class DataProcessor
 {

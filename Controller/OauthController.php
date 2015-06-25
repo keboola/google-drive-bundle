@@ -7,8 +7,6 @@
 
 namespace Keboola\Google\DriveBundle\Controller;
 
-
-use InvalidArgumentException;
 use Keboola\Encryption\EncryptorInterface;
 use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
@@ -19,12 +17,10 @@ use Keboola\StorageApi\ClientException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Syrup\ComponentBundle\Controller\BaseController;
-use Syrup\ComponentBundle\Exception\SyrupComponentException;
-use Syrup\ComponentBundle\Exception\UserException;
+use Keboola\Syrup\Controller\BaseController;
+use Keboola\Syrup\Exception\SyrupComponentException;
+use Keboola\Syrup\Exception\UserException;
 
 class OauthController extends BaseController
 {

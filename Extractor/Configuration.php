@@ -15,7 +15,7 @@ use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\StorageApi\Client as StorageApi;
 use Keboola\StorageApi\Config\Reader;
 use Keboola\StorageApi\Table;
-use Syrup\ComponentBundle\Exception\UserException;
+use Keboola\Syrup\Exception\UserException;
 
 class Configuration
 {
@@ -44,7 +44,6 @@ class Configuration
         $this->encryptor = $encryptor;
 
         $this->accountFactory = new AccountFactory($this);
-//		$this->accounts = $this->getAccounts();
     }
 
     public function setStorageApi(StorageApi $storageApi)
@@ -125,13 +124,6 @@ class Configuration
 
     public function addSheet(Account $account, $params)
     {
-//		$accountId = $params['accountId'];
-//		unset($params['accountId']);
-
-//		$accounts = $this->getAccounts();
-//		/** @var Account $account */
-//		$account = $accounts[$accountId];
-
         $exists = false;
         foreach ($account->getSheets() as $sheet) {
             /** @var Sheet $sheet */

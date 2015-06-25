@@ -13,10 +13,9 @@ use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
 use Monolog\Logger;
-use SplFileInfo;
-use Syrup\ComponentBundle\Exception\ApplicationException;
-use Syrup\ComponentBundle\Exception\UserException;
-use Syrup\ComponentBundle\Filesystem\Temp;
+use Keboola\Syrup\Exception\ApplicationException;
+use Keboola\Syrup\Exception\UserException;
+use Keboola\Temp\temp;
 
 class Extractor
 {

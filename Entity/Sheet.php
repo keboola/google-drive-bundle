@@ -8,7 +8,6 @@
 
 namespace Keboola\Google\DriveBundle\Entity;
 
-
 class Sheet
 {
 	protected $fileId;

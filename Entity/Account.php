@@ -8,10 +8,8 @@
 
 namespace Keboola\Google\DriveBundle\Entity;
 
-use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\StorageApi\Table;
-use Syrup\ComponentBundle\Exception\ApplicationException;
 
 class Account extends Table
 {

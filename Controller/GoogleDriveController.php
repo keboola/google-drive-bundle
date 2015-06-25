@@ -7,29 +7,58 @@
 
 namespace Keboola\Google\DriveBundle\Controller;
 
-
+use GuzzleHttp\Message\Response;
 use Keboola\Google\DriveBundle\Entity\Account;
+use Keboola\Google\DriveBundle\Entity\Sheet;
+use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\Exception\ParameterMissingException;
-use Keboola\Google\DriveBundle\GoogleDriveExtractor;
+use Keboola\Google\DriveBundle\Extractor\Extractor;
+use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Syrup\ComponentBundle\Controller\ApiController;
-use Syrup\ComponentBundle\Exception\UserException;
+use Keboola\Syrup\Controller\ApiController;
+use Keboola\Syrup\Exception\UserException;
+use Keboola\Google\DriveBundle\Extractor\Configuration;
 
 class GoogleDriveController extends ApiController
 {
+    /** @var Extractor */
+    protected $extractor;
 
-	// @todo: refactor
-	public function preExecute(Request $request)
-	{
-		parent::preExecute($request);
+    /** @var Configuration */
+    protected $configuration;
 
-		$this->initStorageApi();
-		$this->initComponent($this->storageApi, $this->componentName);
-	}
+    /**
+     * @return Configuration
+     */
+    public function getConfiguration()
+    {
+        if ($this->configuration == null) {
+            $this->configuration = $this->container->get('ex_google_drive.configuration');
+            $this->configuration->setStorageApi($this->storageApi);
+        }
+        return $this->configuration;
+    }
+
+    /**
+     * @param array $required
+     * @param array $params
+     */
+    protected function checkParams($required, $params)
+    {
+        foreach ($required as $r) {
+            if (!isset($params[$r])) {
+                throw new ParameterMissingException(sprintf("Parameter %s is missing.", $r));
+            }
+        }
+    }
 
 	/** Tokens */
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
 	public function postExternalAuthLinkAction(Request $request)
 	{
 		$post = $this->getPostJson($request);
@@ -43,56 +72,98 @@ class GoogleDriveController extends ApiController
 		}
 
 		/** @var Account $account */
-		$account = $this->getComponent()->getConfiguration()->getAccountBy('accountId', $post['account']);
+		$account = $this->getConfiguration()->getAccountBy('accountId', $post['account']);
+
+        if ($account == null) {
+            throw new UserException(sprintf("Account '%s' not found", $post['account']));
+        }
 		$account->setExternal(true);
 		$account->save();
 
-		$token = $this->getComponent()->getToken();
+		$token = $this->getConfiguration()->createToken();
 
 		$referrer = $post['referrer'] . '?token=' . $token['token'] .'&account=' . $post['account'];
 
-		$url = $this->generateUrl('keboola_google_drive_external_auth', array(
+		$url = $this->generateUrl('keboola_google_drive_external_auth', [
 			'token'     => $token['token'],
 			'account'   => $post['account'],
 			'referrer'  => $referrer
-		), true);
+		], true);
 
-		return $this->createJsonResponse(array(
+		return $this->createJsonResponse([
 			'link'  => $url
-		));
+		]);
 	}
 
 	/** Configs */
 
+    /**
+     * @return JsonResponse
+     */
 	public function getConfigsAction()
 	{
-		return $this->getJsonResponse($this->getComponent()->getConfigs());
+        $accounts = $this->getConfiguration()->getAccounts(true);
+
+        $res = [];
+        foreach ($accounts as $account) {
+            $res[] = array_intersect_key($account, array_fill_keys(['id', 'name', 'description'], 0));
+        }
+
+		return $this->getJsonResponse($res);
 	}
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
 	public function postConfigsAction(Request $request)
 	{
-		$account = $this->getComponent()->postConfigs($this->getPostJson($request));
+        $params = $this->getPostJson($request);
+        $this->checkParams(['name'], $params);
 
-		return $this->getJsonResponse(array(
+        try {
+            $this->getConfiguration()->exists();
+        } catch (ConfigurationException $e) {
+            $this->getConfiguration()->create();
+        }
+
+        if (null != $this->getConfiguration()->getAccountBy(
+            'accountId',
+            $this->configuration->getIdFromName($params['name']))
+        ) {
+            throw new ConfigurationException('Account already exists');
+        }
+        $params['accountName'] = $params['name'];
+
+        $account = $this->getConfiguration()->addAccount($params);
+
+		return $this->getJsonResponse([
 			'id'    => $account->getAccountId(),
 			'name'  => $account->getAccountName(),
 			'description'   => $account->getDescription()
-		));
+		]);
 	}
 
+    /**
+     * @param $id
+     * @return JsonResponse
+     */
 	public function deleteConfigAction($id)
 	{
-		$this->getComponent()->deleteConfig($id);
+        $this->getConfiguration()->removeAccount($id);
 
-		return $this->getJsonResponse(array(), 204);
+		return $this->getJsonResponse([], 204);
 	}
-
 
 	/** Accounts */
 
+    /**
+     * @param $id
+     * @return JsonResponse
+     */
 	public function getAccountAction($id)
 	{
-		$account = $this->getComponent()->getAccount($id);
+		$account = $this->getConfiguration()->getAccountBy('accountId', $id, true);
 
 		if ($account == null) {
 			throw new UserException(sprintf('Account %s not found', $id));
@@ -106,30 +177,91 @@ class GoogleDriveController extends ApiController
 		return $this->getJsonResponse($account);
 	}
 
+    /**
+     * @return JsonResponse
+     */
 	public function getAccountsAction()
 	{
-		return $this->getJsonResponse($this->getComponent()->getAccounts());
+		return $this->getJsonResponse($this->getConfiguration()->getAccounts(true));
 	}
 
 
 	/** Files */
 
+    /**
+     * @param string $accountId
+     * @param null|string $pageToken
+     * @return JsonResponse
+     * @throws UserException
+     */
 	public function getFilesAction($accountId, $pageToken = null)
 	{
-		return $this->getJsonResponse($this->getComponent()->getFiles($accountId, $pageToken));
+        /** @var Account $account */
+        $account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
+
+        if (null == $account) {
+            throw new UserException(sprintf("Account '%s' doesn't exist", $accountId));
+        }
+
+        $googleDriveApi = $this->getApi($account);
+
+        /** @var Response $response */
+        $response = $googleDriveApi->getFiles($pageToken);
+
+		return $this->getJsonResponse($response->json());
 	}
 
 
 	/** Sheets */
 
+    /**
+     * @param string $accountId
+     * @param string $fileId
+     * @return JsonResponse
+     */
 	public function getSheetsAction($accountId, $fileId)
 	{
-		return $this->getJsonResponse($this->getComponent()->getSheets($accountId, $fileId));
+        /** @var Account $account */
+        $account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
+
+        $googleDriveApi = $this->getApi($account);
+
+		return $this->getJsonResponse($googleDriveApi->getWorksheets($fileId));
 	}
 
+    /**
+     * @param string $accountId
+     * @param Request $request
+     * @return JsonResponse
+     * @throws UserException
+     */
 	public function postSheetsAction($accountId, Request $request)
 	{
-        $sheets = $this->getComponent()->postSheets($accountId, $this->getPostJson($request));
+        $account = $this->getConfiguration()->getAccountBy('accountId', $accountId);
+
+        if ($account == null) {
+            throw new UserException("Account '$accountId' not found");
+        }
+
+        $params = $this->getPostJson($request);
+
+        if (!isset($params['data'])) {
+            throw new ParameterMissingException("missing parameter data");
+        }
+
+        foreach ($params['data'] as $sheetData) {
+            $this->checkParams([
+                'googleId',
+                'title',
+                'sheetId',
+                'sheetTitle'
+            ], $sheetData);
+
+            $account->addSheet(new Sheet($sheetData));
+        }
+        $account->save();
+
+        $sheets = $account->getData();
 
         $sheets = array_map(function ($item) {
             $item['sheetId'] = (string) $item['sheetId'];
@@ -139,19 +271,17 @@ class GoogleDriveController extends ApiController
 		return $this->getJsonResponse($sheets);
 	}
 
+    /**
+     * @param $accountId
+     * @param $fileId
+     * @param $sheetId
+     * @return JsonResponse
+     */
 	public function deleteSheetAction($accountId, $fileId, $sheetId)
 	{
-		$this->getComponent()->deleteSheet($accountId, $fileId, $sheetId);
+        $this->getConfiguration()->removeSheet($accountId, $fileId, $sheetId);
 
-		return $this->getJsonResponse(array(), 204);
-	}
-
-	/**
-	 * @return GoogleDriveExtractor
-	 */
-	protected function getComponent()
-	{
-		return $this->component;
+		return $this->getJsonResponse([], 204);
 	}
 
 	protected function getJsonResponse(array $data, $status = 200)
@@ -162,4 +292,24 @@ class GoogleDriveController extends ApiController
 		return $response;
 	}
 
+    /**
+     * @param Account $account
+     * @internal param $accessToken
+     * @internal param $refreshToken
+     * @return RestApi
+     */
+    protected function getApi(Account $account)
+    {
+        /** @var RestApi $googleDriveApi */
+        $googleDriveApi = $this->container->get('ex_google_drive.rest_api');
+        $googleDriveApi->getApi()->setCredentials($account->getAccessToken(), $account->getRefreshToken());
+
+        $this->extractor = $this->container->get('ex_google_drive.extractor');
+        $this->extractor->setConfiguration($this->getConfiguration());
+        $this->extractor->setCurrAccountId($account->getAccountId());
+
+        $googleDriveApi->getApi()->setRefreshTokenCallback([$this->extractor, 'refreshTokenCallback']);
+
+        return $googleDriveApi;
+    }
 }

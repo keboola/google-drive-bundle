@@ -7,17 +7,12 @@
 
 namespace Keboola\Google\DriveBundle\Extractor;
 
-use GuzzleHttp\Exception\RequestException;
-use Keboola\Csv\CsvFile;
 use Keboola\Google\DriveBundle\Entity\Sheet;
-use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Table;
+use Keboola\Temp\Temp;
 use SplFileInfo;
-use Symfony\Component\Debug\Exception\ContextErrorException;
-use Syrup\ComponentBundle\Exception\ApplicationException;
-use Syrup\ComponentBundle\Exception\UserException;
-use Syrup\ComponentBundle\Filesystem\Temp;
+use Keboola\Syrup\Exception\UserException;
 
 class DataManager
 {

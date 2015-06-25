@@ -3,14 +3,12 @@
 namespace Keboola\Google\DriveBundle\Tests;
 
 use Keboola\Google\DriveBundle\Entity\Account;
-use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\StorageApi\Client as SapiClient;
-use Keboola\StorageApi\Config\Reader;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Client;
-use Syrup\ComponentBundle\Encryption\Encryptor;
+use Keboola\Syrup\Encryption\Encryptor;
 
 class ExtractorTest extends WebTestCase
 {

@@ -7,18 +7,10 @@
 
 namespace Keboola\Google\DriveBundle\Job;
 
-
-use Keboola\Google\DriveBundle\Entity\Account;
 use Keboola\Google\DriveBundle\Extractor\Configuration;
 use Keboola\Google\DriveBundle\Extractor\Extractor;
-use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
-use Keboola\StorageApi\Client as SapiClient;
-use Monolog\Logger;
-use Syrup\ComponentBundle\Filesystem\Temp;
-use Syrup\ComponentBundle\Job\Executor as BaseExecutor;
-use Syrup\ComponentBundle\Job\ExecutorInterface;
-use Syrup\ComponentBundle\Job\Metadata\Job;
-use Syrup\ComponentBundle\Encryption\Encryptor;
+use Keboola\Syrup\Job\Executor as BaseExecutor;
+use Keboola\Syrup\Job\Metadata\Job;
 
 class Executor extends BaseExecutor
 {
