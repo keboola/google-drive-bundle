@@ -1,0 +1,19 @@
+{
+  "params": {
+    "dynamic": "strict",
+    "properties": {
+      "account": {
+        "type": "string"
+      },
+      "config": {
+        "type": "string"
+      },
+      "googleId": {
+        "type": "string"
+      },
+      "sheetId": {
+        "type": "string"
+      }
+    }
+  }
+}
