@@ -81,6 +81,7 @@ class DataProcessor
                     $this->outputCsv->writeRow($csvRow);
                 }
             }
+
             $i++;
         }
 

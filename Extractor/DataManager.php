@@ -13,6 +13,7 @@ use Keboola\StorageApi\Table;
 use Keboola\Temp\Temp;
 use SplFileInfo;
 use Keboola\Syrup\Exception\UserException;
+use GuzzleHttp\Stream\Stream;
 
 class DataManager
 {
@@ -69,7 +70,8 @@ class DataManager
             throw new \Exception("Can't write to file " . $fileInfo->getPathname());
         }
 
-        fwrite($fh, $data);
+        /* @var Stream $data */
+        fwrite($fh, $data->getContents());
         fclose($fh);
 
         return $fileInfo->getPathname();
