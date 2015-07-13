@@ -1417,16 +1417,16 @@
         },
         {
             "name": "keboola/storage-api-client",
-            "version": "2.12.14",
+            "version": "2.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/storage-api-php-client.git",
-                "reference": "e85e30f2c7159a9c9f51222f1e81b2ddab35ad72"
+                "reference": "ec6aab33e958e36dabec097054349a0905d66e0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/storage-api-php-client/zipball/e85e30f2c7159a9c9f51222f1e81b2ddab35ad72",
-                "reference": "e85e30f2c7159a9c9f51222f1e81b2ddab35ad72",
+                "url": "https://api.github.com/repos/keboola/storage-api-php-client/zipball/ec6aab33e958e36dabec097054349a0905d66e0a",
+                "reference": "ec6aab33e958e36dabec097054349a0905d66e0a",
                 "shasum": ""
             },
             "require": {
@@ -1455,7 +1455,7 @@
             ],
             "description": "Keboola Storage API PHP CLient",
             "homepage": "http://keboola.com",
-            "time": "2015-05-26 15:12:29"
+            "time": "2015-07-13 11:26:33"
         },
         {
             "name": "keboola/syrup",
