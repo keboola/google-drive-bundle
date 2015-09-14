@@ -98,7 +98,7 @@ class Extractor
                     $meta = $this->driveApi->getFile($sheet->getGoogleId());
                 } catch (RequestException $e) {
                     if ($e->getResponse()->getStatusCode() == 404) {
-                        throw new UserException("File not found in Google Drive", $e);
+                        throw new UserException(sprintf("File '%s' not found in Google Drive", $sheet->getTitle()), $e);
                     } else {
                         $userException = new UserException("Google Drive Error: " . $e->getMessage(), $e);
                         $userException->setData(array(
@@ -119,7 +119,11 @@ class Extractor
                     throw $e;
                 }
 
-                $exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
+                if (isset($meta['exportLinks']['text/csv'])) {
+                    $exportLink = $meta['exportLinks']['text/csv'] . '&gid=' . $sheet->getSheetId();
+                } else {
+                    $exportLink = str_replace('pdf', 'csv', $meta['exportLinks']['application/pdf']) . '&gid=' . $sheet->getSheetId();
+                }
 
                 try {
                     $data = $this->driveApi->export($exportLink);
