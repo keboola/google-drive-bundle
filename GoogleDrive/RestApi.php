@@ -9,7 +9,9 @@
 namespace Keboola\Google\DriveBundle\GoogleDrive;
 
 use Guzzle\Http\Message\Response;
+use GuzzleHttp\Exception\ClientException;
 use Keboola\Google\ClientBundle\Google\RestApi as GoogleApi;
+use Keboola\Syrup\Exception\UserException;
 
 class RestApi
 {
@@ -50,6 +52,18 @@ class RestApi
 		return $this->api;
 	}
 
+	public function callApi($url, $method = 'GET', $headers = [], $params = [])
+	{
+		try {
+			return $this->api->call($url, $method, $headers, $params);
+		} catch (ClientException $e) {
+			$statusCode = $e->getResponse()->getStatusCode();
+			if ($statusCode >= 400 && $statusCode < 500) {
+				throw new UserException($e->getMessage());
+			}
+		}
+	}
+
 	public function getFilesByOwner($userEmail, $mimeType='application/vnd.google-apps.spreadsheet')
 	{
 		return $this->api->request(
@@ -75,7 +89,7 @@ class RestApi
 
 	public function shareFile($googleId, $email)
 	{
-		$result = $this->api->call(self::FILES . '/' . $googleId . '/permissions', array(
+		$result = $this->callApi(self::FILES . '/' . $googleId . '/permissions', array(
 			'Content-Type'  => 'application/json',
 		), 'POST', array(
 			'role'  => 'reader',
@@ -94,7 +108,7 @@ class RestApi
 	 */
 	public function getWorksheets($key)
 	{
-		$response = $this->api->call(
+		$response = $this->callApi(
 			self::SPREADSHEET_WORKSHEETS . '/' . $key . '/private/full?alt=json' ,
 			'GET',
 			array(
@@ -145,7 +159,7 @@ class RestApi
 
 	public function getFile($googleId)
 	{
-		$response = $this->api->call(
+		$response = $this->callApi(
 			self::FILES . '/' . $googleId,
 			'GET'
 		);
@@ -155,15 +169,10 @@ class RestApi
 
 	public function exportSpreadsheet($key, $worksheet = 0)
 	{
-//		$uri = self::EXPORT_SPREADSHEET . '?key=' . $googleId . '&exportFormat=' . $format;
 		$uri = str_replace(array('%key%', '%worksheetId%'), array($key, $worksheet), self::LIST_SPREADSHEET) . '?alt=json';
 
-//		if ($worksheet !== 0) {
-//			$uri .= '&gid=' . $worksheet;
-//		}
-
 		/** @var Response $response */
-		$response = $this->api->call(
+		$response = $this->callApi(
 			$uri,
 			'GET',
 			array(
@@ -178,7 +187,7 @@ class RestApi
 	public function export($url)
 	{
 		/** @var Response $response */
-		$response = $this->api->call(
+		$response = $this->callApi(
 			$url,
 			'GET',
 			array(
