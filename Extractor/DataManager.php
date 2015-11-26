@@ -51,7 +51,10 @@ class DataManager
         try {
             $table->save(true);
         } catch (ClientException $e) {
-            throw new UserException($e->getMessage(), $e);
+            throw new UserException($e->getMessage(), $e, [
+                'outputTable' => $outputTable,
+                'sheet' => $sheet->toArray()
+            ]);
         }
 
         unlink($tmpFilename);
