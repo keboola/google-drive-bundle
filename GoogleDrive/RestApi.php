@@ -79,13 +79,13 @@ class RestApi
     /** @deprecated */
 	public function shareFile($googleId, $email)
 	{
-		return $this->callApi(self::FILES . '/' . $googleId . '/permissions', array(
+		return $this->callApi(self::FILES . '/' . $googleId . '/permissions', [
 			'Content-Type'  => 'application/json',
-		), 'POST', array(
+		], 'POST', [
 			'role'  => 'reader',
 			'type'  => 'user',
 			'value' => $email
-		));
+		]);
 	}
 
     public function getFiles($pageToken = null, $mimeType = 'application/vnd.google-apps.spreadsheet')
@@ -93,7 +93,9 @@ class RestApi
         return $this->callApi(
             self::FILES,
             'GET',
-            ['Accept' => 'application/json'],
+            [
+                'Accept' => 'application/json'
+            ],
             [
                 'pageToken' => $pageToken,
                 'q'         => "mimeType='".$mimeType."'"
@@ -110,15 +112,18 @@ class RestApi
 	public function getWorksheets($key)
 	{
 		$response = $this->callApi(
-			self::SPREADSHEET_WORKSHEETS . '/' . $key . '/private/full?alt=json' ,
+			self::SPREADSHEET_WORKSHEETS . '/' . $key . '/private/full' ,
 			'GET',
-			array(
+			[
 				'Accept'		=> 'application/json',
 				'GData-Version' => '3.0'
-			)
+			],
+            [
+                'alt' => 'json'
+            ]
 		);
 
-		$result = array();
+		$result = [];
 		if (isset($response['feed']['entry'])) {
 			foreach($response['feed']['entry'] as $entry) {
 				$wsUri = explode('/', $entry['id']['$t']);
@@ -129,11 +134,11 @@ class RestApi
 					$gid = $this->toGid($wsId);
 				}
 
-				$result[$gid] = array(
+				$result[$gid] = [
 					'id'    => $gid,
 					'wsid'  => $wsId,
 					'title' => $entry['title']['$t']
-				);
+				];
 			}
 
 			return $result;
