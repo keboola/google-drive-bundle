@@ -166,14 +166,17 @@ class RestApi
 
 	public function export($url)
 	{
+        list($baseUrl, $query) = explode('?', $url);
+
 		/** @var Response $response */
 		$response = $this->api->request(
-			$url,
+            $baseUrl,
 			'GET',
-			array(
-				'Accept'		=> 'text/csv; charset=UTF-8',
+			[
+				'Accept'		=> 'application/json; charset=UTF-8',
 				'GData-Version' => '3.0'
-			)
+			],
+            \GuzzleHttp\Psr7\parse_query($query)
 		);
 
 		return $response->getBody(true);
