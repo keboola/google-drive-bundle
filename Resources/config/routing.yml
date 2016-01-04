@@ -3,6 +3,12 @@
 #    defaults: { _controller: KeboolaGoogleDriveBundle:Default:index }
 #
 
+# Run
+keboola_google_drive_run:
+    path: /run
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:run }
+    methods:  [POST]
+
 # OAuth
 keboola_google_drive_oauth:
     path: /oauth
