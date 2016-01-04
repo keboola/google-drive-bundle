@@ -55,7 +55,8 @@ class RestApi
 	public function callApi($url, $method = 'GET', $headers = [], $params = [])
 	{
 		try {
-			return $this->api->call($url, $method, $headers, $params);
+            $response = $this->api->request($url, $method, $headers, $params);
+			return json_decode($response->getBody(), true);
 		} catch (ClientException $e) {
 			$statusCode = $e->getResponse()->getStatusCode();
 			if ($statusCode >= 400 && $statusCode < 500) {
@@ -64,6 +65,7 @@ class RestApi
 		}
 	}
 
+    /** @deprecated */
 	public function getFilesByOwner($userEmail, $mimeType='application/vnd.google-apps.spreadsheet')
 	{
 		return $this->api->request(
@@ -74,31 +76,30 @@ class RestApi
 		);
 	}
 
-	public function getFiles($pageToken = null, $mimeType = 'application/vnd.google-apps.spreadsheet')
-	{
-		return $this->api->request(
-			self::FILES,
-			'GET',
-			['Accept' => 'application/json'],
-			[
-				'pageToken' => $pageToken,
-				'q'         => "mimeType='".$mimeType."'"
-			]
-		);
-	}
-
+    /** @deprecated */
 	public function shareFile($googleId, $email)
 	{
-		$result = $this->callApi(self::FILES . '/' . $googleId . '/permissions', array(
+		return $this->callApi(self::FILES . '/' . $googleId . '/permissions', array(
 			'Content-Type'  => 'application/json',
 		), 'POST', array(
 			'role'  => 'reader',
 			'type'  => 'user',
 			'value' => $email
 		));
-
-		return $result;
 	}
+
+    public function getFiles($pageToken = null, $mimeType = 'application/vnd.google-apps.spreadsheet')
+    {
+        return $this->callApi(
+            self::FILES,
+            'GET',
+            ['Accept' => 'application/json'],
+            [
+                'pageToken' => $pageToken,
+                'q'         => "mimeType='".$mimeType."'"
+            ]
+        );
+    }
 
 	/**
 	 * Returns list of worksheet for given document
@@ -116,8 +117,6 @@ class RestApi
 				'GData-Version' => '3.0'
 			)
 		);
-
-		$response = $response->json();
 
 		$result = array();
 		if (isset($response['feed']['entry'])) {
@@ -159,35 +158,16 @@ class RestApi
 
 	public function getFile($googleId)
 	{
-		$response = $this->callApi(
+		return $this->callApi(
 			self::FILES . '/' . $googleId,
 			'GET'
 		);
-
-		return $response->json();
-	}
-
-	public function exportSpreadsheet($key, $worksheet = 0)
-	{
-		$uri = str_replace(array('%key%', '%worksheetId%'), array($key, $worksheet), self::LIST_SPREADSHEET) . '?alt=json';
-
-		/** @var Response $response */
-		$response = $this->callApi(
-			$uri,
-			'GET',
-			array(
-				'Accept'		=> 'application/json',
-				'GData-Version' => '3.0'
-			)
-		);
-
-		return $response->getBody(true);
 	}
 
 	public function export($url)
 	{
 		/** @var Response $response */
-		$response = $this->callApi(
+		$response = $this->api->request(
 			$url,
 			'GET',
 			array(
@@ -197,16 +177,5 @@ class RestApi
 		);
 
 		return $response->getBody(true);
-	}
-
-	protected function _normalize($s)
-	{
-		// Normalize line endings
-		// Convert all line-endings to UNIX format
-		$s = str_replace("\r\n", "\n", $s);
-		$s = str_replace("\r", "\n", $s);
-		// Don't allow out-of-control blank lines
-		$s = preg_replace("/\n{2,}/", "\n\n", $s);
-		return $s;
 	}
 }
