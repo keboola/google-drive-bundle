@@ -7,13 +7,13 @@
 
 namespace Keboola\Google\DriveBundle\Extractor;
 
+use GuzzleHttp\Psr7\Stream;
 use Keboola\Google\DriveBundle\Entity\Sheet;
 use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Table;
 use Keboola\Temp\Temp;
 use SplFileInfo;
 use Keboola\Syrup\Exception\UserException;
-use GuzzleHttp\Stream\Stream;
 
 class DataManager
 {

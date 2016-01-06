@@ -128,9 +128,14 @@ class Extractor
                 try {
                     $data = $this->driveApi->export($exportLink);
 
-                    if (!empty($data)) {
+                    if ($data->getSize() > 0) {
                         $this->dataManager->save($data, $sheet);
                     } else {
+                        $this->logger->warning(sprintf(
+                            "Sheet is empty. File: '%s', Sheet: '%s'.",
+                            $sheet->getTitle(),
+                            $sheet->getSheetTitle()
+                        ));
                         $status[$accountId][$sheet->getSheetTitle()] = "file is empty";
                     }
                 } catch (RequestException $e) {

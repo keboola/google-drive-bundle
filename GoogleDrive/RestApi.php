@@ -8,8 +8,8 @@
 
 namespace Keboola\Google\DriveBundle\GoogleDrive;
 
-use Guzzle\Http\Message\Response;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\Response;
 use Keboola\Google\ClientBundle\Google\RestApi as GoogleApi;
 use Keboola\Syrup\Exception\UserException;
 
@@ -178,12 +178,12 @@ class RestApi
             $baseUrl,
 			'GET',
 			[
-				'Accept'		=> 'application/json; charset=UTF-8',
+				'Accept'		=> 'text/csv; charset=UTF-8',
 				'GData-Version' => '3.0'
 			],
             \GuzzleHttp\Psr7\parse_query($query)
 		);
 
-		return $response->getBody(true);
+		return $response->getBody();
 	}
 }
