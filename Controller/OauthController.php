@@ -135,7 +135,10 @@ class OauthController extends BaseController
 			);
 
 			$googleApi->setCredentials($tokens['access_token'], $tokens['refresh_token']);
-			$userData = $googleApi->call(RestApi::USER_INFO_URL)->json();
+			$userData = json_decode(
+				$googleApi->request('https://www.googleapis.com/oauth2/v2/userinfo')->getBody(),
+				true
+			);
 
 			$account = $configuration->getAccountBy('accountId', $accountId);
 
