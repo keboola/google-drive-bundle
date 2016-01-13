@@ -140,11 +140,9 @@ class RestApi
 					'title' => $entry['title']['$t']
 				];
 			}
-
-			return $result;
 		}
 
-		return false;
+		return $result;
 	}
 
 	protected function getGid($links)
