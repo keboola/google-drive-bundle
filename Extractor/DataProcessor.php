@@ -173,6 +173,7 @@ class DataProcessor
     {
         $string = str_replace('#', 'count', $string);
         $string = Utility::unaccent($string);
+        $string = preg_replace("/[\n\r]/","",$string);
         $string = preg_replace("/[^A-Za-z0-9_\s]/", '', $string);
         $string = trim($string);
         $string = str_replace(' ', '_', $string);
