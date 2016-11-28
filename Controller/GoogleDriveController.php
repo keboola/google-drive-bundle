@@ -13,6 +13,7 @@ use Keboola\Google\DriveBundle\Exception\ConfigurationException;
 use Keboola\Google\DriveBundle\Exception\ParameterMissingException;
 use Keboola\Google\DriveBundle\Extractor\Extractor;
 use Keboola\Google\DriveBundle\GoogleDrive\RestApi;
+use Keboola\Syrup\Elasticsearch\JobMapper;
 use Keboola\Syrup\Exception\ApplicationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -185,6 +186,20 @@ class GoogleDriveController extends ApiController
 		return $this->getJsonResponse($this->getConfiguration()->getAccounts(true));
 	}
 
+    public function getAccountDecryptAction($id)
+    {
+        $account = $this->getConfiguration()->getAccountBy('accountId', $id);
+
+        if ($account == null) {
+            throw new UserException("Account '" . $id . "' not found");
+        }
+
+        $accountArr = $account->toArray();
+        $accountArr['refreshToken'] = $account->getRefreshToken();
+        $accountArr['accessToken'] = $account->getAccessToken();
+
+        return $this->createJsonResponse($accountArr);
+    }
 
 	/** Files */
 

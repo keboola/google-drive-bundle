@@ -57,6 +57,11 @@ keboola_google_drive_get_account:
     defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:getAccount }
     methods:  [GET]
 
+keboola_google_drive_get_account_decrypt:
+    path: /account/{id}/decrypt
+    defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:getAccountDecrypt }
+    methods:  [GET]
+
 keboola_google_drive_post_account:
     path: /account/{id}
     defaults: { _controller: KeboolaGoogleDriveBundle:GoogleDrive:postAccount }
